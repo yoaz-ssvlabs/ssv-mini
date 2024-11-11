@@ -1,0 +1,29 @@
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+
+RUN apk add git
+
+RUN apk add make g++ py3-pip
+
+RUN npm install -g ts-node
+
+# Clone the specific branch of the Hardhat project from the Git repository
+RUN git clone --branch feat/machine-readable https://github.com/ssvlabs/ssv-network .
+
+WORKDIR /usr/src/app/ssv-network
+
+# Install project dependencies
+RUN npm install
+
+# Install Hardhat globally
+RUN npm install -g hardhat
+
+RUN npm run build
+
+# Default command to run Hardhat tasks
+CMD ["tail", "-f", "/dev/null"]
