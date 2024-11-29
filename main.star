@@ -9,6 +9,7 @@ validator_keystores = import_module("./src/validators/validator_keystore_generat
 utils = import_module("./src/utils/utils.star")
 hardhat = import_module("./src/contract//hardhat.star")
 # e2m = import_module("./src/e2m/e2m_launcher.star")
+ssv = import_module("./src/ssv/ssv.star")
 
 
 def run(plan, args):
@@ -32,3 +33,6 @@ def run(plan, args):
 
     # e2m_url = e2m.launch_e2m(plan, cl_url)
     # plan.print("E2M URL: ", e2m_url)
+
+    ssv.start_cli(plan)
+    config = ssv.generate_config(plan, el_ws_url, cl_url)

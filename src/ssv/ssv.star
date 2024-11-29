@@ -1,4 +1,4 @@
-SSV_NODE_IMAGE = "ssvlabs/ssv-node:latest" # TODO replace with local build
+SSV_NODE_IMAGE = "ssv-node:custom-config" # using local image with custom config tag TODO: 1) decide where to pull ssv from; 2) change tag after merging custom config feature
 SSV_CLI_SERVICE_NAME = "ssv-cli"
 
 def start_cli(plan):
@@ -36,3 +36,27 @@ def generate_operator_keys(plan):
         public_key=public_key,
         private_key=private_key,
     )
+
+
+def generate_config(plan, consensus_client, execution_client):
+    plan.print("generating config")
+
+    plan.exec(
+        service_name=SSV_CLI_SERVICE_NAME,
+        recipe=ExecRecipe(
+            command=[
+                "/bin/sh", "-c",
+                "/go/bin/ssvnode generate-config --consensus-client={} --execution-client={} --output-path=/tmp/ssv_config".format(consensus_client, execution_client)
+            ]
+        ),
+    )
+
+    config = plan.exec(service_name=SSV_CLI_SERVICE_NAME, recipe=ExecRecipe(command=["/bin/sh", "-c", "cat /tmp/ssv_config"]))["output"]
+
+    plan.print("generated config")
+    plan.print(config)
+
+    return struct(
+        config=config,
+    )
+
