@@ -11,6 +11,8 @@ hardhat = import_module("./src/contract//hardhat.star")
 # e2m = import_module("./src/e2m/e2m_launcher.star")
 ssv = import_module("./src/ssv/ssv.star")
 
+SSV_NODE_COUNT = 4
+
 
 def run(plan, args):
 
@@ -35,4 +37,17 @@ def run(plan, args):
     # plan.print("E2M URL: ", e2m_url)
 
     ssv.start_cli(plan)
-    config = ssv.generate_config(plan, el_ws_url, cl_url)
+
+    operator_keys = []
+    operator_configs = []
+    for index in range(0, SSV_NODE_COUNT):
+        keys = ssv.generate_operator_keys(plan)
+        plan.print("keys")
+        plan.print(keys)
+        private_key = keys.private_key
+        plan.print("private_key")
+        plan.print(private_key)
+
+        operator_keys.append(private_key)
+        operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
+
