@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -14,8 +14,6 @@ RUN npm install -g ts-node
 
 # Clone the specific branch of the Hardhat project from the Git repository
 RUN git clone --branch feat/machine-readable https://github.com/ssvlabs/ssv-network .
-
-WORKDIR /usr/src/app/ssv-network
 
 # Install project dependencies
 RUN npm install
