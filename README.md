@@ -4,6 +4,7 @@
 
 - Docker
 - Kurtosis
+- Build E2M locally ( `git clone https://github.com/ssvlabs/ethereum2-monitor --branch v2 && cd ethereum2-monitor && docker build -t local/ethereum2-monitor`)
 
 ```bash
 chmod +x ./run.sh

@@ -4,7 +4,7 @@ network_params:
   network_id: "3151908"
   deneb_fork_epoch: 0
   electra_fork_epoch: 999999
-  preregistered_validator_count: 10
+  preregistered_validator_count: 64
   preset: minimal
 
 participants:
