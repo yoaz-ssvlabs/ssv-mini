@@ -46,7 +46,7 @@ Use this if you want to shutdown previous network and start one from genesis
 - [x] - Kurtosis Eth Package - Ethereum network base (EL, CL, validator keys)
 - [x] - SSV Contract Deployer (`/src/contract`)
 	- [x] - Deploys Token,  SSV Contracts
- 	- [ ] - Verify contract with blockscout
+ 	- [x] - Verify contract with blockscout
 
 - [ ] - State manager
   - [ ] - Take some prefunded keys from network genesis (make sure no validators running them)
