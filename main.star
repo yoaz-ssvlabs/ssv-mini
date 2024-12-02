@@ -1,13 +1,13 @@
 ethereum_package = import_module(
     "github.com/ethpandaops/ethereum-package/main.star"
 )
-genesis_constants = import_module(
-    "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
-)
-validator_keystores = import_module("./src/validators/validator_keystore_generator.star")
+# genesis_constants = import_module(
+#     "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
+# )
+# validator_keystores = import_module("./src/validators/validator_keystore_generator.star")
 
 utils = import_module("./src/utils/utils.star")
-hardhat = import_module("./src/contract//hardhat.star")
+deployer = import_module("./src/contract//deployer.star")
 # e2m = import_module("./src/e2m/e2m_launcher.star")
 ssv = import_module("./src/ssv/ssv.star")
 
@@ -27,11 +27,8 @@ def run(plan, args):
     plan.print("Ethereum network RPC URI: ", el_rpc_uri)
     plan.print("Ethereum network WS URL: ", el_ws_url)
 
-    hardhat.init(plan, el_rpc_uri, ethereum_network.blockscout_sc_verif_url)
-    hardhat.compile(plan)
-    contract_output = hardhat.deploy(plan)
-    plan.print(contract_output)
-    hardhat.verify_many(plan, [contract_output.ssvTokenAddress, contract_output.operatorsModAddress, contract_output.clustersModAddress, contract_output.daoModAddress, contract_output.viewsModAddress, contract_output.ssvNetworkAddress])
+    contracts = deployer.run(plan, "devnet", el_rpc_uri, ethereum_network.blockscout_sc_verif_url)
+    plan.print(contracts)
 
     # e2m_url = e2m.launch_e2m(plan, cl_url)
     # plan.print("E2M URL: ", e2m_url)

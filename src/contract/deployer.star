@@ -27,7 +27,7 @@ def get_env_vars(eth1_url, blockscout_url):
 # hardhat_project_url - a Kurtosis locator to a directory containing the hardhat files (with hardhat.config.ts at the root of the dir)
 # env_vars - Optional argument to set some environment variables in the container; can use this to set the RPC_URI as an example
 # returns - hardhat_service; a Kurtosis Service object containing .name, .ip_address, .hostname & .ports
-def init(plan, eth1_url, blockscout_url):
+def run(plan, network, eth1_url, blockscout_url):
 
     env_vars = get_env_vars(eth1_url, blockscout_url)
 
@@ -40,7 +40,12 @@ def init(plan, eth1_url, blockscout_url):
         )
     )
 
-    return hardhat_service
+    compile(plan)
+    contracts = deploy(plan)
+    verify_many(plan, [contracts.ssvTokenAddress, contracts.operatorsModAddress, contracts.clustersModAddress, 
+            contracts.daoModAddress, contracts.viewsModAddress, contracts.ssvNetworkAddress ])
+
+    return contracts
 
 
 # runs npx hardhat test with the given contract
