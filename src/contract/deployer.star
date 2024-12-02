@@ -80,7 +80,7 @@ def compile(plan):
 # plan - is the Kurtosis plan
 # smart_contract - the path to smart_contract relative to the hardhat_project passed to `init`
 # network - the network to run npx hardhat run against; defaults to local
-def run(plan, smart_contract, network = "local"):
+def npx_run(plan, smart_contract, network = "local"):
     command_arr = ["npx", "hardhat", "run", smart_contract, "--network", network]
     return plan.exec(
         service_name = HARDHAT_SERVICE_NAME,
