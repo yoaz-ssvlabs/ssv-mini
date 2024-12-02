@@ -1,4 +1,6 @@
-SSV_NODE_IMAGE = "ssv-node:custom-config" # using local image with custom config tag TODO: 1) decide where to pull ssv from; 2) change tag after merging custom config feature
+# using local image with custom config tag, taken from https://github.com/ssvlabs/ssv/pull/1308
+# TODO: 1) decide where to pull ssv from; 2) change tag after merging custom config feature
+SSV_NODE_IMAGE = "ssv-node:custom-config"
 SSV_CLI_SERVICE_NAME = "ssv-cli"
 
 def start_cli(plan):
