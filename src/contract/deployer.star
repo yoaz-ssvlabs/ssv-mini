@@ -20,7 +20,32 @@ def get_env_vars(eth1_url, blockscout_url):
     "DECLARE_OPERATOR_FEE_PERIOD": "259200",  # 3 days
     "EXECUTE_OPERATOR_FEE_PERIOD": "345600",  # 4 days
     "VALIDATORS_PER_OPERATOR_LIMIT": "500"
-    }  
+    }
+
+def register_operators(plan, operator_public_keys, genesis_constants, network="devnet"):
+    env_vars_commands = ["OWNER_PRIVATE_KEY=" + genesis_constants.PRE_FUNDED_ACCOUNTS[0].private_key]
+    for index, public_key in enumerate(operator_public_keys):
+        env_var = "OPERATOR_" + str(index) + "_PUBLIC_KEY=" + public_key
+        env_vars_commands.append(env_var)
+
+    env_vars_str = " ".join(env_vars_commands)
+
+    register_operators_script_path = "scripts/register-operators.ts"
+    hardhat_command = env_vars_str + " npx hardhat run " + register_operators_script_path + " --network " + network
+
+    plan.print("Registering operators with the smart contract...")
+    exec_result = plan.exec(
+        service_name=HARDHAT_SERVICE_NAME,
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", hardhat_command]
+        )
+    )
+
+    register_exec_output = exec_result.get("output", "No output provided.")
+    plan.print("Operator registration output:\n" + register_exec_output)
+    plan.print("Operator registration process completed.")
+
+
 
 # creates a container with Node JS and installs the required depenencies of the hardhat project passed
 # plan - is the Kurtosis plan
@@ -28,6 +53,13 @@ def get_env_vars(eth1_url, blockscout_url):
 # env_vars - Optional argument to set some environment variables in the container; can use this to set the RPC_URI as an example
 # returns - hardhat_service; a Kurtosis Service object containing .name, .ip_address, .hostname & .ports
 def run(plan, network, eth1_url, blockscout_url):
+    scripts_project_dir = "./scripts"
+    scripts_files = plan.upload_files(scripts_project_dir)
+
+    scripts_image_dir = "/usr/src/app/scripts"
+    files = {
+        scripts_image_dir: scripts_files,
+    }
 
     env_vars = get_env_vars(eth1_url, blockscout_url)
 
@@ -36,6 +68,7 @@ def run(plan, network, eth1_url, blockscout_url):
         config = ServiceConfig(
             image = image,
             entrypoint = ["sleep", "999999"],
+            files=files,
             env_vars = env_vars,
         )
     )

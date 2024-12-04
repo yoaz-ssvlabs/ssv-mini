@@ -1,9 +1,9 @@
 ethereum_package = import_module(
     "github.com/ethpandaops/ethereum-package/main.star"
 )
-# genesis_constants = import_module(
-#     "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
-# )
+genesis_constants = import_module(
+    "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
+)
 # validator_keystores = import_module("./src/validators/validator_keystore_generator.star")
 
 utils = import_module("./src/utils/utils.star")
@@ -48,3 +48,4 @@ def run(plan, args):
         operator_keys.append(private_key)
         operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
 
+    # deployer.register_operators(plan, operator_keys, genesis_constants) # TODO: uncomment when it's fixed
