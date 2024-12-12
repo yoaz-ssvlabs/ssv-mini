@@ -4,12 +4,13 @@ ethereum_package = import_module(
 genesis_constants = import_module(
     "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
 )
-
+ssv_node = import_module("./src/ssv/ssv-node.star")
+static_files = import_module("./src/static_files/static_files.star")
 blocks = import_module("./src/blockchain/blocks.star")
 # validator_keystores = import_module("./src/validators/validator_keystore_generator.star")
 
 utils = import_module("./src/utils/utils.star")
-deployer = import_module("./src/contract//deployer.star")
+deployer = import_module("./src/contract/deployer.star")
 # e2m = import_module("./src/e2m/e2m_launcher.star")
 ssv = import_module("./src/ssv/ssv.star")
 
@@ -51,5 +52,18 @@ def run(plan, args):
 
         operator_keys.append(private_key)
         operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
+
+    plan.print("Starting 4 SSV nodes with unique configurations")
+
+    ssv_config_template = read_file(
+        static_files.SSV_CONFIG_TEMPLATE_FILEPATH
+    )
+
+    for index in range(1, 5):  # Start nodes with indices 1 to 4
+        config = ssv_node.generate_config(plan, index, ssv_config_template, el_ws_url, cl_url, operator_keys[index - 1])
+        plan.print(config)
+
+        node_service = ssv_node.start(plan, index, config)
+        plan.print("Started SSV Node {}".format(index))
 
     # deployer.register_operators(plan, operator_keys, genesis_constants) # TODO: uncomment when it's fixed
