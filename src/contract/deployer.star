@@ -75,8 +75,9 @@ def run(plan, network, eth1_url, blockscout_url):
 
     compile(plan)
     contracts = deploy(plan)
-    verify_many(plan, [contracts.ssvTokenAddress, contracts.operatorsModAddress, contracts.clustersModAddress, 
-            contracts.daoModAddress, contracts.viewsModAddress, contracts.ssvNetworkAddress ])
+    # skipping verification for now as its too slow and sometimes fails
+    # verify_many(plan, [contracts.ssvTokenAddress, contracts.operatorsModAddress, contracts.clustersModAddress, 
+            # contracts.daoModAddress, contracts.viewsModAddress, contracts.ssvNetworkAddress ])
 
     return contracts
 
