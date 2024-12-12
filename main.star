@@ -59,8 +59,8 @@ def run(plan, args):
         static_files.SSV_CONFIG_TEMPLATE_FILEPATH
     )
 
-    for index in range(1, 5):  # Start nodes with indices 1 to 4
-        config = ssv_node.generate_config(plan, index, ssv_config_template, el_ws_url, cl_url, operator_keys[index - 1])
+    for index in range(0, SSV_NODE_COUNT):
+        config = ssv_node.generate_config(plan, index, ssv_config_template, el_ws_url, cl_url, operator_keys[index])
         plan.print(config)
 
         node_service = ssv_node.start(plan, index, config)
