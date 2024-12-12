@@ -31,7 +31,7 @@ def generate_operator_keys(plan):
         service_name=SSV_CLI_SERVICE_NAME,
         recipe=ExecRecipe(command=[
             "/bin/sh", "-c",
-            "cat /tmp/ssv_keys | grep 'generated public key' | awk -F'\"' '{print $(NF-1)}'"
+            "cat /tmp/ssv_keys | grep 'generated public key' | awk -F'\"' '{print $(NF-1)}' | tr -d ' \n\r'"
         ])
     )["output"]
 
@@ -39,7 +39,7 @@ def generate_operator_keys(plan):
         service_name=SSV_CLI_SERVICE_NAME,
         recipe=ExecRecipe(command=[
             "/bin/sh", "-c",
-            "cat /tmp/ssv_keys | grep 'generated private key' | awk -F'\"' '{print $(NF-1)}'"
+            "cat /tmp/ssv_keys | grep 'generated private key' | awk -F'\"' '{print $(NF-1)}' | tr -d ' \n\r'"
         ])
     )["output"]
 
