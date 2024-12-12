@@ -4,6 +4,8 @@ ethereum_package = import_module(
 genesis_constants = import_module(
     "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
 )
+
+blocks = import_module("./src/blockchain/blocks.star")
 # validator_keystores = import_module("./src/validators/validator_keystore_generator.star")
 
 utils = import_module("./src/utils/utils.star")
@@ -26,6 +28,8 @@ def run(plan, args):
     plan.print("Ethereum network URL: ", cl_url)
     plan.print("Ethereum network RPC URI: ", el_rpc_uri)
     plan.print("Ethereum network WS URL: ", el_ws_url)
+
+    blocks.wait_until_node_reached_block(plan, "el-1-geth-lighthouse", 1)
 
     contracts = deployer.run(plan, "devnet", el_rpc_uri, ethereum_network.blockscout_sc_verif_url)
     plan.print(contracts)
