@@ -35,7 +35,7 @@ def register_operators(plan,
     #         env_var = "OPERATOR_" + str(index) + "_PUBLIC_KEY=" + public_key
     #         env_vars_commands.append(env_var)
     env_vars_commands = ["SSV_NODE_COUNT=" + str(len(operator_public_keys)),
-                         "OWNER_PRIVATE_KEY=" + genesis_constants.PRE_FUNDED_ACCOUNTS[1].private_key,
+                         "OWNER_PRIVATE_KEY=" + genesis_constants.PRE_FUNDED_ACCOUNTS[1].private_key, # contracts are deployed using genesis_constants.PRE_FUNDED_ACCOUNTS[1]
                          "SSV_NETWORK_ADDRESS_STAGE=" + ssv_network_address,
                          "OPERATOR_1_PUBLIC_KEY=" + operator_public_keys[0].rstrip(),  # TODO: don't hardcode indices
                          "OPERATOR_2_PUBLIC_KEY=" + operator_public_keys[1].rstrip(),
@@ -44,20 +44,18 @@ def register_operators(plan,
                          "RPC_URI=" + el_url
                          ]
 
-    plan.print("env_vars_commands")
+    plan.print("env for registering operators")
     plan.print(env_vars_commands)
 
-    for env in env_vars_commands:
+    for env in env_vars_commands: # useful for debugging
         exec_result = plan.exec(
             service_name=HARDHAT_SERVICE_NAME,
             recipe=ExecRecipe(
                 command=["/bin/sh", "-c", "echo " + env + " >> .env"]
             )
         )
+
     env_vars_str = " ".join(env_vars_commands)
-
-    plan.print("env: ", env_vars_str)
-
     register_operators_script_path = "scripts/register-operators.ts"
     hardhat_command = env_vars_str + " npx hardhat run " + register_operators_script_path + " --network " + network
 
