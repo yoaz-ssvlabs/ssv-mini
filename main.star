@@ -17,7 +17,6 @@ SSV_NODE_COUNT = 4
 
 
 def run(plan, args):
-
     ethereum_network = ethereum_package.run(plan, args)
     cl_url, el_rpc_uri, el_ws_url = utils.get_eth_urls(ethereum_network.all_participants)
     # validator_data = validator_keystores.generate_validator_keystores(
@@ -45,11 +44,17 @@ def run(plan, args):
         keys = ssv.generate_operator_keys(plan)
         plan.print("keys")
         plan.print(keys)
+
         private_key = keys.private_key
         plan.print("private_key")
         plan.print(private_key)
 
-        operator_keys.append(private_key)
-        operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
+        public_key = keys.public_key
+        plan.print("public_key")
+        plan.print(public_key)
 
-    # deployer.register_operators(plan, operator_keys, genesis_constants) # TODO: uncomment when it's fixed
+        operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
+        operator_keys.append(public_key)
+
+    deployer.register_operators(plan, operator_keys, genesis_constants, contracts.ssvNetworkAddress,
+                                el_rpc_uri)
