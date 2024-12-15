@@ -1,73 +1,132 @@
-// Define imports
 const hre = require("hardhat");
 const { ethers } = hre;
 
-let registeredOperators = 0
-
-// Build provider on the Goerli network
-const provider = ethers.getDefaultProvider(process.env.RPC_URI)
-
-// Build wallets from the private keys
-const privKey = `0x${process.env.OWNER_PRIVATE_KEY}`
-// const account = new ethers.Wallet(privKey, provider)
-const account = ethers.Wallet.createRandom(); // TODO: this is for testing, need to use the line above
-
-const operatorPublicKeys = getOperatorPublicKeys()
-
-// Start script
-async function registerOperators() {
-    // Attach SSV Network
-    const ssvNetworkFactory = await ethers.getContractFactory('SSVNetwork')
-    const ssvNetwork = ssvNetworkFactory.attach(process.env.SSV_NETWORK_ADDRESS_STAGE)
-    console.log('Successfully Attached to the SSV Network Contract')
-
-    for (let i = 0; i < operatorPublicKeys.length; i++) {
-        const abiCoder = new ethers.utils.AbiCoder()
-        const abiEncoded = abiCoder.encode(["string"], [operatorPublicKeys[i]])
-
-        console.log('----------------------- register-operator -----------------------');
-        console.log('public-key', operatorPublicKeys[i]);
-        console.log('abi-encoded', abiEncoded);
-        console.log(`Registering operator ${registeredOperators + 1} out of ${operatorPublicKeys.length}`)
-        console.log('------------------------------------------------------------------');
-
-        // Connect the account to use for contract interaction
-        // const ssvNetworkContract = await ssvNetwork.connect(accounts[0])
-        const ssvNetworkContract = await ssvNetwork.connect(account)
-        // Register the validator
-        const txResponse = await ssvNetworkContract.registerOperator(
-            abiEncoded,
-            '100000000',
-            {
-                gasPrice: process.env.GAS_PRICE,
-                gasLimit: process.env.GAS_LIMIT
-            }
-        );
-        console.log('registered operator, tx', txResponse.hash);
-
-        await txResponse.wait();
-
-        registeredOperators++
-    }
-
-    console.log(`successfully registered ${registeredOperators} operators`)
+interface Operator {
+    id: number;
+    publicKey: string;
 }
 
-function getOperatorPublicKeys(): string[] {
-  const nodeCount = parseInt(process.env.SSV_NODE_COUNT || '0', 10);
+async function connectContract(
+    eth1URL: string,
+    contractAddress: string,
+    contractFactory: string,
+    privateKey: string
+) {
+    const provider = new ethers.JsonRpcProvider(eth1URL);
 
-  const publicKeys: string[] = [];
+    const wallet = new ethers.Wallet(privateKey, provider);
+    console.log(`Connected Wallet Address: ${wallet.address}`);
 
-  for (let index = 0; index < nodeCount; index++) {
-    const envVarName = `OPERATOR_${index}_PUBLIC_KEY`;
-    const publicKey = process.env[envVarName];
+    const factory = await ethers.getContractFactory(contractFactory, wallet);
+    const contract = factory.attach(contractAddress);
 
-    if (publicKey) {
-      publicKeys.push(publicKey);
+    return contract;
+}
+
+async function updateMaximumOperatorFee(contract: ethers.Contract, newFee: string) {
+    try {
+        const tx = await contract.updateMaximumOperatorFee(newFee);
+        console.log(`updateMaximumOperatorFee TX Hash: ${tx.hash}`);
+        await tx.wait();
+        console.log("✅ Successfully updated maximum operator fee");
+    } catch (error: any) {
+        console.error("❌ Failed to update maximum operator fee:", error);
+        throw error;
     }
-  }
+}
 
-  return publicKeys;
+async function registerOperator(
+    contract: ethers.Contract,
+    publicKey: string,
+    fee: string,
+    setPrivate: boolean
+) {
+    try {
+        const abiCoder = new ethers.AbiCoder()
+        const encodedPublicKey = abiCoder.encode(["string"], [publicKey])
+
+        const tx = await contract.registerOperator(encodedPublicKey, fee, setPrivate);
+        console.log(`registerOperator TX Hash: ${tx.hash}`);
+        await tx.wait();
+        console.log(`✅ Successfully registered operator with public key ${publicKey}`);
+    } catch (error: any) {
+        if (error.code === 'CALL_EXCEPTION') {
+            console.error(`❌ Transaction reverted while registering operator ${publicKey}:`, error);
+        } else {
+            console.error(`❌ Error registering operator ${publicKey}:`, error);
+        }
+        throw error;
+    }
+}
+
+export async function registerOperators() {
+    if (
+        !process.env.SSV_NETWORK_ADDRESS_STAGE ||
+        !process.env.OWNER_PRIVATE_KEY ||
+        !process.env.RPC_URI ||
+        !process.env.OPERATOR_1_PUBLIC_KEY ||
+        !process.env.OPERATOR_2_PUBLIC_KEY ||
+        !process.env.OPERATOR_3_PUBLIC_KEY ||
+        !process.env.OPERATOR_4_PUBLIC_KEY
+    ) {
+        console.error("❌ One or more required environment variables are missing.");
+        process.exit(1);
+    }
+
+    const operators: Operator[] = [ // TODO: get count from SSV_NODES_COUNT
+        { id: 1, publicKey: process.env.OPERATOR_1_PUBLIC_KEY },
+        { id: 2, publicKey: process.env.OPERATOR_2_PUBLIC_KEY },
+        { id: 3, publicKey: process.env.OPERATOR_3_PUBLIC_KEY },
+        { id: 4, publicKey: process.env.OPERATOR_4_PUBLIC_KEY },
+    ];
+
+    console.log('Preparing to register operators')
+
+    const contract = await connectContract(
+        process.env.RPC_URI,
+        process.env.SSV_NETWORK_ADDRESS_STAGE,
+        'SSVNetwork',
+        process.env.OWNER_PRIVATE_KEY
+    );
+
+    const contractOwner = await contract.owner();
+    console.log(`Contract Owner: ${contractOwner}`);
+
+    const wallet = new ethers.Wallet(process.env.OWNER_PRIVATE_KEY, new ethers.JsonRpcProvider(process.env.RPC_URI));
+    console.log(`Wallet Address: ${wallet.address}`)
+
+    if (contractOwner.toLowerCase() !== wallet.address.toLowerCase()) {
+        console.error("❌ The provided private key does not correspond to the contract owner.");
+        process.exit(1);
+    }
+    console.log("✅ Verified that the wallet is the contract owner.");
+
+    const newMaxFee = '76528650000000'; // from https://github.com/ssvlabs/ssv-network/blob/583b7b7cb1c1abc5d4c3b13bafca59bf315113b6/test/helpers/contract-helpers.ts#L32
+    await updateMaximumOperatorFee(contract, newMaxFee);
+
+    const operatorFee = '1000000000'; // taken from https://github.com/ssvlabs/ssv-network/blob/583b7b7cb1c1abc5d4c3b13bafca59bf315113b6/contracts/modules/SSVOperators.sol#L14,
+    const setAsPrivate = false;
+
+    let registeredOperators = 0;
+
+    for (const operator of operators) {
+        console.log('------------------------ Register Operator -----------------------');
+        console.log(`ID: ${operator.id}`);
+        console.log(`Public Key: ${operator.publicKey}`);
+        console.log(`Amount: ${operatorFee}`);
+        console.log(`Set As Private: ${setAsPrivate}`);
+        console.log('------------------------------------------------------------------');
+
+        try {
+            await registerOperator(contract, operator.publicKey, operatorFee, setAsPrivate);
+            registeredOperators++;
+        } catch (error) {
+            console.error(`❌ Failed to register operator with ID ${operator.id} and public key ${operator.publicKey}`);
+            continue;
+        }
+    }
+
+    console.log(`Registered ${registeredOperators} operators`);
 }
 
 registerOperators()
