@@ -4,12 +4,13 @@ ethereum_package = import_module(
 genesis_constants = import_module(
     "github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star"
 )
-
+ssv_node = import_module("./src/ssv/ssv-node.star")
+static_files = import_module("./src/static_files/static_files.star")
 blocks = import_module("./src/blockchain/blocks.star")
 # validator_keystores = import_module("./src/validators/validator_keystore_generator.star")
 
 utils = import_module("./src/utils/utils.star")
-deployer = import_module("./src/contract//deployer.star")
+deployer = import_module("./src/contract/deployer.star")
 # e2m = import_module("./src/e2m/e2m_launcher.star")
 ssv = import_module("./src/ssv/ssv.star")
 
@@ -38,8 +39,9 @@ def run(plan, args):
 
     ssv.start_cli(plan)
 
-    operator_keys = []
-    operator_configs = []
+    operator_public_keys = []
+    operator_private_keys = []
+    # operator_configs = []
     for index in range(0, SSV_NODE_COUNT):
         keys = ssv.generate_operator_keys(plan)
         plan.print("keys")
@@ -53,8 +55,22 @@ def run(plan, args):
         plan.print("public_key")
         plan.print(public_key)
 
-        operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
-        operator_keys.append(public_key)
+        # operator_configs.append(ssv.generate_config(plan, el_ws_url, cl_url, private_key))
+        operator_public_keys.append(public_key)
+        operator_private_keys.append(private_key)
 
-    deployer.register_operators(plan, operator_keys, genesis_constants, contracts.ssvNetworkAddress,
+    deployer.register_operators(plan, operator_public_keys, genesis_constants, contracts.ssvNetworkAddress,
                                 el_rpc_uri)
+
+    plan.print("Starting {} SSV nodes with unique configurations".format(SSV_NODE_COUNT))
+
+    ssv_config_template = read_file(
+        static_files.SSV_CONFIG_TEMPLATE_FILEPATH
+    )
+
+    for index in range(0, SSV_NODE_COUNT):
+        config = ssv_node.generate_config(plan, index, ssv_config_template, el_ws_url, cl_url, operator_private_keys[index])
+        plan.print(config)
+
+        node_service = ssv_node.start(plan, index, config)
+        plan.print("Started SSV Node {}".format(index))
