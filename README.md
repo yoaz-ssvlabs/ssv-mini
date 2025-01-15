@@ -5,7 +5,7 @@
 - Docker
 - Kurtosis
 - Build E2M locally ( `git clone https://github.com/ssvlabs/ethereum2-monitor --branch v2 && cd ethereum2-monitor && docker build -t local/ethereum2-monitor`)
-
+- Local image of SSV supporting custom config (currently here - https://github.com/ssvlabs/ssv/pull/1308) `docker build -t ssv-node:custom-config .`
 ```bash
 chmod +x ./run.sh
 chmod +x ./reset.sh
