@@ -48,12 +48,15 @@ Use this if you want to shutdown previous network and start one from genesis
 	- [x] - Deploys Token,  SSV Contracts
  	- [x] - Verify contract with blockscout
 
-- [ ] - State manager
-  - [ ] - Take some prefunded keys from network genesis (make sure no validators running them)
-  - [ ] - Deposits SSV token, Adds operators and validators.
+- [ ] State manager
+  - [ ] Take some prefunded keys from network genesis (make sure no validators running them)
+  - [ ] Deposits SSV token
+  - [ ] Adds operators
+  - [ ] register validators.
 - [ ] - SSV Operator Runner
-  - [ ] - Create different operators configs based on network and contract data (cl/el urls, keys, etc..)
-  - [ ] - run ssv operator node 
+  - [x] Create different operators configs based on network and contract data (cl/el urls, keys, etc..)
+  - [x] run go-ssv operator node
+  - [ ] run anchor node
 - [ ] - E2M (should work but needs testing and code to configure validator tracking)
 - [ ] - Metrics and observability
   - [ ] - EL/CL
