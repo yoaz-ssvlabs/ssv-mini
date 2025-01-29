@@ -1,3 +1,6 @@
+### ❗NOTE
+This repo is still WIP and is not by any means ready to run. Checkout the Components and progress section.
+
 ## Setup
 
 ### Pre-requirements
@@ -40,7 +43,7 @@ Use this if you want to shutdown previous network and start one from genesis
 
 ### Design
 
-##### Components
+##### Components and progress
 
 - Kurtosis - Orchestrator, used to deploy different packages, takes care of network connectivity, packaging and more.
 - [x] - Kurtosis Eth Package - Ethereum network base (EL, CL, validator keys)
