@@ -9,14 +9,32 @@ network_params:
 
 participants:
   - el_type: geth
+    el_image: ethereum/client-go:latest
     cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest-unstable
     validator_count: 64
-    count: 2
+    count: 4
 
 additional_services:
+  #- assertoor
+  #- broadcaster
+  #- tx_spammer
+  #- blob_spammer
+  #- custom_flood
+  #- spamoor
+  #- spamoor_blob
+  #- el_forkmon
   - blockscout
+  #- beacon_metrics_gazer
+  - dora
+  #- full_beaconchain_explorer
   - prometheus_grafana
- # - dora
+  #- blobscan
+  #- dugtrio
+  #- blutgang
+  #- forky
+  #- apache
+  #- tracoor
 
 # Supports three valeus
 # Default: "null" - no mev boost, mev builder, mev flood or relays are spun up
@@ -24,7 +42,7 @@ additional_services:
 # "full" - mev-boost, relays, flooder and builder are all spun up
 # Users are recommended to set network_params.capella_fork_epoch to non zero when testing MEV
 # We have seen instances of multibuilder instances failing to start mev-relay-api with non zero epochs
-mev_type: "mock"
+#mev_type: "mock"
 
 # Parameters if MEV is used
 mev_params:

@@ -18,7 +18,6 @@ def generate_config(
     alan_domain_type = "0x00000502"
     registry_sync_offset = "181612"
     registry_contract_addr = "0x38A4794cCEd47d3baf7370CcC43B560D3a1beEFA"
-    local_events_path = "./config/events.yaml"
 
     # Prepare data for the template
     data = struct(
@@ -32,7 +31,6 @@ def generate_config(
         RegistrySyncOffset=registry_sync_offset,
         RegistryContractAddr=registry_contract_addr,
         OperatorPrivateKey=operator_private_key,
-        LocalEventsPath=local_events_path,
     )
 
     # Render the template into a file artifact
@@ -66,14 +64,12 @@ def start(plan, index, config_artifact):
     service_config = ServiceConfig(
         image=image,
         entrypoint=[
-            "make",
-            "BUILD_PATH=/go/bin/ssvnode",
+            "/go/bin/ssvnode",
             "start-node",
+            "--config={}".format(config_path),
         ],
         cmd=[],
-        env_vars={
-            "CONFIG_PATH": config_path,  # Pass the path as an environment variable
-        },
+        env_vars={},
         files={
             SSV_CONFIG_DIR_PATH_ON_SERVICE: config_artifact,  # Map the configuration artifact to the desired path
         },

@@ -7,7 +7,7 @@ eth2:
 eth1:
   ETH1Addr: "{{ .ETH1Addr }}"
 p2p:
-  Discovery: "mdns"
+  Discovery: "discv5"
 ssv:
   CustomNetwork:
     Name: "{{ .CustomNetworkName }}"
@@ -16,4 +16,3 @@ ssv:
     RegistrySyncOffset: "{{ .RegistrySyncOffset }}"
     RegistryContractAddr: "{{ .RegistryContractAddr }}"
 OperatorPrivateKey: {{ .OperatorPrivateKey }}
-LocalEventsPath: "{{ .LocalEventsPath }}"

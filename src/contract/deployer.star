@@ -13,7 +13,7 @@ def get_env_vars(eth1_url, blockscout_url):
         "GAS_PRICE": "2000000",
         "GAS": "50000000000",
         "DEVNET_ETH_NODE_URL": eth1_url,
-        "BLOCKSCOUT_URL": blockscout_url,
+        "BLOCKSCOUT_URL": blockscout_url if blockscout_url != None else "",
         "MINIMUM_BLOCKS_BEFORE_LIQUIDATION": "100800",
         "MINIMUM_LIQUIDATION_COLLATERAL": "200000000",
         "OPERATOR_MAX_FEE_INCREASE": "3",
