@@ -1,8 +1,9 @@
-# using local image with custom config tag, taken from https://github.com/ssvlabs/ssv/pull/1308
-# TODO: 1) decide where to pull ssv from; 2) change tag after merging custom config feature
+# TODO: REPLACE THIS WITH ANCHOR OPERATOR KEYGEN
+
 SSV_NODE_IMAGE = "ssv-node:custom-config"
 SSV_CLI_SERVICE_NAME = "ssv-cli"
 
+# Start a new container to interact with the ssv node via cli
 def start_cli(plan):
     files = {}
     plan.add_service(
@@ -14,6 +15,20 @@ def start_cli(plan):
         ),
     )
 
+# Generate num_keys rsa keypairs
+def generate_keys(plan, num_keys):
+    operator_public_keys = []
+    operator_private_keys = []
+
+    for index in range(0, num_keys):
+        keys = generate_operator_keys(plan)
+        operator_public_keys.append(keys.public_key)
+        operator_private_keys.append(keys.private_key)
+    
+    return operator_public_keys, operator_private_keys
+
+
+# Generate a new keypair 
 def generate_operator_keys(plan):
     plan.print("generating operator keys")
 
@@ -43,34 +58,7 @@ def generate_operator_keys(plan):
         ])
     )["output"]
 
-    plan.print("generated operator keys")
-    plan.print(public_key)
-    plan.print(private_key)
-
     return struct(
         public_key=public_key,
         private_key=private_key,
-    )
-
-
-def generate_config(plan, consensus_client, execution_client, operator_private_key):
-    plan.print("generating config")
-
-    plan.exec(
-        service_name=SSV_CLI_SERVICE_NAME,
-        recipe=ExecRecipe(
-            command=[
-                "/bin/sh", "-c",
-                "/go/bin/ssvnode generate-config --output-path=/tmp/ssv_config --consensus-client={} --execution-client={} --operator-private-key={}".format(consensus_client, execution_client, operator_private_key)
-            ]
-        ),
-    )
-
-    config = plan.exec(service_name=SSV_CLI_SERVICE_NAME, recipe=ExecRecipe(command=["/bin/sh", "-c", "cat /tmp/ssv_config"]))["output"]
-
-    plan.print("generated config")
-    plan.print(config)
-
-    return struct(
-        config=config,
     )

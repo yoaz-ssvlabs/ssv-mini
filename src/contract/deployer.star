@@ -28,7 +28,7 @@ def register_operators(plan,
                        genesis_constants,
                        ssv_network_address,
                        el_url,
-                       network="devnet"):
+                       network="kurtosis"):
 
     # TODO: set keys in a loop, something like this:
     #     for index, public_key in enumerate(operator_public_keys):
@@ -43,9 +43,6 @@ def register_operators(plan,
                          "OPERATOR_4_PUBLIC_KEY=" + operator_public_keys[3].rstrip(),
                          "RPC_URI=" + el_url
                          ]
-
-    plan.print("env for registering operators")
-    plan.print(env_vars_commands)
 
     for env in env_vars_commands: # useful for debugging
         exec_result = plan.exec(
@@ -111,7 +108,7 @@ def run(plan, network, eth1_url, blockscout_url):
 # plan - is the Kurtosis plan
 # smart_contract - the path to smart_contract relative to the hardhat_project passed to `init`; if you pass nothing it runs all suites via npx hardhat test
 # network - the network to run npx hardhat run against; defaults to local
-def test(plan, smart_contract=None, network="devnet"):
+def test(plan, smart_contract=None, network="kurtosis"):
     command_arr = ["npx", "hardhat", "test", "--network", network]
     if smart_contract:
         command_arr = ["npx", "hardhat", "test", smart_contract, "--network", network]
@@ -170,7 +167,7 @@ def script(plan, script_path, args=[]):
 # task_name - the taskname to run
 # network - the network to run npx hardhat run against; defaults to local
 def deploy(plan):
-    command_arr = ["npx", "hardhat", "deploy:all", "--network", "devnet", "--machine true"]
+    command_arr = ["npx", "hardhat", "deploy:all", "--network", "kurtosis", "--machine true"]
     out = plan.exec(
         service_name=HARDHAT_SERVICE_NAME,
         recipe=ExecRecipe(
@@ -208,7 +205,7 @@ def verify(plan, contract_address, network="local"):
 def verify_many(plan, contracts):
     command_arr = []
     for contract in contracts:
-        cmdarr = "npx hardhat verify --network devnet " + contract
+        cmdarr = "npx hardhat verify --network kurtosis" + contract
         command_arr.append(cmdarr)
 
     return plan.exec(

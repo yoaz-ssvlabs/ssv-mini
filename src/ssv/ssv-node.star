@@ -1,35 +1,46 @@
 shared_utils = import_module("../utils/utils.star")
-SSV_CONFIG_DIR_PATH_ON_SERVICE = "/ssv-config"
 
+# Config constants
+SSV_CONFIG_DIR_PATH_ON_SERVICE = "/ssv-config"
+CUSTOM_NETWORK_NAME = "local-network"
+GENESIS_DOMAIN_TYPE = "0x00000501"
+ALAN_DOMAIN_TYPE = "0x00000502"
+REGISTRY_SYNC_OFFSET = "181612"
+REGISTRY_CONTRACT_ADDR = "0x38A4794cCEd47d3baf7370CcC43B560D3a1beEFA"
+LOG_LEVEL = "debug"
+
+
+# Generat ethe configuration for the node
 def generate_config(
         plan,
         index,
         ssv_config_template,
-        consensus_client,
         execution_client,
+        consensus_client,
         operator_private_key,
 ):
     db_path = "./data/db/{}/".format(index)
     file_name = "ssv-config-{}.yaml".format(index)
-    log_level = "debug"
 
-    custom_network_name = "local-network"
-    genesis_domain_type = "0x00000501"
-    alan_domain_type = "0x00000502"
-    registry_sync_offset = "181612"
-    registry_contract_addr = "0x38A4794cCEd47d3baf7370CcC43B560D3a1beEFA"
+    # Ensure URLs have correct protocol prefixes and no trailing slashes
+    beacon_url = consensus_client.rstrip("/")
+    execution_url = execution_client.rstrip("/")
+
+    # Log the URLs we're using for debugging
+    plan.print("Beacon node URL: " +  beacon_url)
+    plan.print("Execution client URL: " + execution_url)
 
     # Prepare data for the template
     data = struct(
-        LogLevel=log_level,
+        LogLevel=LOG_LEVEL,
         DBPath=db_path,
-        BeaconNodeAddr=consensus_client,
-        ETH1Addr=execution_client,
-        CustomNetworkName=custom_network_name,
-        GenesisDomainType=genesis_domain_type,
-        AlanDomainType=alan_domain_type,
-        RegistrySyncOffset=registry_sync_offset,
-        RegistryContractAddr=registry_contract_addr,
+        BeaconNodeAddr=beacon_url,
+        ETH1Addr=execution_url,
+        CustomNetworkName=CUSTOM_NETWORK_NAME,
+        GenesisDomainType=GENESIS_DOMAIN_TYPE,
+        AlanDomainType=ALAN_DOMAIN_TYPE,
+        RegistrySyncOffset=REGISTRY_SYNC_OFFSET,
+        RegistryContractAddr=REGISTRY_CONTRACT_ADDR,
         OperatorPrivateKey=operator_private_key,
     )
 
@@ -43,19 +54,9 @@ def generate_config(
 
     return rendered_artifact
 
+
+# Start the node
 def start(plan, index, config_artifact):
-    """
-    Adds and starts an SSV node service in Kurtosis.
-
-    Args:
-        plan: Kurtosis execution plan.
-        index: The index of the node to start.
-        config_artifact: The artifact containing the configuration to use for the node.
-
-    Returns:
-        The created service object.
-    """
-
     service_name = "ssv-node-{}".format(index)
     image = "ssv-node:custom-config"  # Matches the new Docker image name
     config_path = "{}/ssv-config-{}.yaml".format(SSV_CONFIG_DIR_PATH_ON_SERVICE, index)
