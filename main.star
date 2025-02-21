@@ -25,6 +25,7 @@ SSV_CONFIG_TEMPLATE_FILEPATH = (
 )
 
 def run(plan, args):
+    '''
     # Spin up the network 
     ethereum_network = ethereum_package.run(plan, args)
     cl_url, el_rpc, el_ws = utils.get_eth_urls(ethereum_network.all_participants)
@@ -34,6 +35,7 @@ def run(plan, args):
     # Compile and deploy all of the contracts to the local network
     contracts = deployer.run(plan, "kurtosis", el_rpc, ethereum_network.blockscout_sc_verif_url)
     plan.print(contracts)
+    '''
 
     keygen.start_cli(plan)
 
@@ -44,6 +46,7 @@ def run(plan, args):
     # Generate public/private keypair for every operator we are going to deploy
     public_keys, private_keys = keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
+    '''
     # Once we have all of the keys, register each operator with the network
     deployer.register_operators(plan, public_keys, genesis_constants, contracts.ssvNetworkAddress, el_rpc)
 
@@ -56,4 +59,5 @@ def run(plan, args):
 
     # Validator generation and deployment
     # ----------------------------------
+    '''
 

@@ -1,15 +1,13 @@
-# TODO: REPLACE THIS WITH ANCHOR OPERATOR KEYGEN
-
-SSV_NODE_IMAGE = "ssv-node:custom-config"
-SSV_CLI_SERVICE_NAME = "ssv-cli"
+ANCHOR_IMAGE = "zholme/anchor-unstable"
+ANCHOR_SERIVCE_NAME "anchor"
 
 # Start a new container to interact with the ssv node via cli
 def start_cli(plan):
     files = {}
     plan.add_service(
-        name=SSV_CLI_SERVICE_NAME,
+        name=ANCHOR_SERIVCE_NAME,
         config=ServiceConfig(
-            image=SSV_NODE_IMAGE,
+            image=ANCHOR_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
             files=files,
         ),
@@ -32,33 +30,37 @@ def generate_keys(plan, num_keys):
 def generate_operator_keys(plan):
     plan.print("generating operator keys")
 
-    plan.exec(
-        service_name=SSV_CLI_SERVICE_NAME,
-        recipe=ExecRecipe(
-            command=[
-                "/bin/sh", "-c",
-                "/go/bin/ssvnode generate-operator-keys > /tmp/ssv_keys"
-            ]
+    # Execute the anchor keygen command and capture its output
+    result = plan.exec(
+        service_name = ANCHOR_CLI_SERVICE_NAME,
+        recipe = ExecRecipe(
+            command = ["/usr/local/bin/app", "keygen"],
+            # Ensure we get clean output
+            environment = {
+                "RUST_LOG": "info"
+            }
         ),
     )
 
-    public_key = plan.exec(
-        service_name=SSV_CLI_SERVICE_NAME,
-        recipe=ExecRecipe(command=[
-            "/bin/sh", "-c",
-            "cat /tmp/ssv_keys | grep 'generated public key' | awk -F'\"' '{print $(NF-1)}' | tr -d ' \n\r'"
-        ])
-    )["output"]
+    # We can extract the keys reliably by looking for the exact log pattern
+    output_lines = result["output"].split("\n")
+    public_key = ""
+    private_key = ""
 
-    private_key = plan.exec(
-        service_name=SSV_CLI_SERVICE_NAME,
-        recipe=ExecRecipe(command=[
-            "/bin/sh", "-c",
-            "cat /tmp/ssv_keys | grep 'generated private key' | awk -F'\"' '{print $(NF-1)}' | tr -d ' \n\r'"
-        ])
-    )["output"]
+    for line in output_lines:
+        # Process only non-empty lines
+        if line.strip():
+            if "INFO keygen: Public:" in line:
+                public_key = line.split("Public:")[1].strip()
+            elif "INFO keygen: Private:" in line:
+                private_key = line.split("Private:")[1].strip()
+
+    # Verify we got both keys
+    if not public_key or not private_key:
+        fail("Failed to generate or extract keys properly")
 
     return struct(
-        public_key=public_key,
-        private_key=private_key,
+        public_key = public_key,
+        private_key = private_key,
     )
+
