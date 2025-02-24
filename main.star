@@ -1,7 +1,8 @@
 ethereum_package = import_module("github.com/ethpandaops/ethereum-package/main.star")
 input_parser = import_module("github.com/ethpandaops/ethereum-package/src/package_io/input_parser.star")
 genesis_constants = import_module("github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/genesis_constants/genesis_constants.star")
-ssv_node = import_module("./src/ssv/ssv-node.star")
+ssv_node = import_module("./src/nodes/ssv-node.star")
+anchor_node = import_module("./src/nodes/anchor-node.star")
 blocks = import_module("./src/blockchain/blocks.star")
 utils = import_module("./src/utils/utils.star")
 deployer = import_module("./src/contract/deployer.star")
@@ -41,7 +42,7 @@ def run(plan, args):
     contracts = deployer.run(plan, "kurtosis", el_rpc, ethereum_network.blockscout_sc_verif_url)
     plan.print(contracts)
 
-    keygen.start_cli(plan)
+    operator_keygen.start_cli(plan)
 
 
     # Operator generation and deployment
@@ -53,11 +54,14 @@ def run(plan, args):
     # Once we have all of the keys, register each operator with the network
     deployer.register_operators(plan, public_keys, genesis_constants, contracts.ssvNetworkAddress, el_rpc)
 
-    # Generate a new config for each node and start them up
-    for index in range(0, SSV_NODE_COUNT + ANCHOR_NODE_COUNT):
+    # Start up all of the nodes 
+    for index in range(0, SSV_NODE_COUNT):
         config = ssv_node.generate_config(plan, index, ssv_config_template, el_ws, cl_url, private_keys[index])
-        plan.print(config)
         ssv_node.start(plan, index, config, cl_url, el_rpc, el_ws)
+
+    for index in range(0, ANCHOR_NODE_COUNT):
+        # todo!() start the anchor nodes
+
 
     # Validator key generation, key splitting, and deployment
     # ----------------------------------
