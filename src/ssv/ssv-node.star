@@ -9,6 +9,7 @@ REGISTRY_SYNC_OFFSET = "181612"
 REGISTRY_CONTRACT_ADDR = "0x38A4794cCEd47d3baf7370CcC43B560D3a1beEFA"
 LOG_LEVEL = "debug"
 
+ANCHOR_IMAGE = "zholme/anchor-unstable"
 
 # Generat ethe configuration for the node
 def generate_config(
@@ -55,29 +56,20 @@ def generate_config(
     return rendered_artifact
 
 
-# Start the node
-def start(plan, index, config_artifact):
-    service_name = "ssv-node-{}".format(index)
-    image = "ssv-node:custom-config"  # Matches the new Docker image name
-    config_path = "{}/ssv-config-{}.yaml".format(SSV_CONFIG_DIR_PATH_ON_SERVICE, index)
+# Start a new instance of an anchor node
+def start(plan, index, config_artifact, consensus_url, execution_url, execution_ws):
 
-    # Minimal service configuration
-    service_config = ServiceConfig(
-        image=image,
-        entrypoint=[
-            "/go/bin/ssvnode",
-            "start-node",
-            "--config={}".format(config_path),
-        ],
-        cmd=[],
-        env_vars={},
-        files={
-            SSV_CONFIG_DIR_PATH_ON_SERVICE: config_artifact,  # Map the configuration artifact to the desired path
-        },
+    node_name = "anchor-{}".format(index)
+    plan.add_service(
+        name = node_name,
+        config = ServiceConfig(
+            image = ANCHOR_IMAGE,
+            entrypoint = [
+                "/usr/local/bin/app",
+                "anchor",
+                "--beacon-nodes", consensus_url,
+                "--execution-nodes", execution_url
+            ]
+        ),
     )
 
-    # Add the service
-    plan.add_service(service_name, service_config)
-
-    # Return the service object
-    return plan.get_service(service_name)

@@ -24,9 +24,9 @@ additional_services:
   #- spamoor
   #- spamoor_blob
   #- el_forkmon
-  - blockscout
+  #- blockscout
   #- beacon_metrics_gazer
-  - dora
+  #- dora
   #- full_beaconchain_explorer
   - prometheus_grafana
   #- blobscan
