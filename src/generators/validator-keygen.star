@@ -1,7 +1,7 @@
 validator_keystores = import_module("github.com/ethpandaops/ethereum-package/src/prelaunch_data_generator/validator_keystores/validator_keystore_generator.star")
 
 # Generate the validator keystores for the new ssv validators
-def generate_validator_keystores(plan, eth_args):
+def generate_keystores(plan, eth_args):
     participants = [
         struct(
             validator_count = 16,

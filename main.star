@@ -28,19 +28,24 @@ SSV_CONFIG_TEMPLATE_FILEPATH = (
         + "/templates/ssv-config.yml.tmpl"
 )
 
+
+VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
+
 def run(plan, args):
+
     ethereum_network = ethereum_package.run(plan, args)
     eth_args = input_parser.input_parser(plan, args)
     args["network_params"]["preregistered_validator_count"] += VALIDATORS
 
+    plan.remove_service(VALIDATOR_KEYSTORE_SERVICE)
 
     cl_url, el_rpc, el_ws = utils.get_eth_urls(ethereum_network.all_participants)
     ssv_config_template = read_file(SSV_CONFIG_TEMPLATE_FILEPATH);
     blocks.wait_until_node_reached_block(plan, "el-1-geth-lighthouse", 1)
 
-    #Compile and deploy all of the contracts to the local network
-    contracts = deployer.run(plan, "kurtosis", el_rpc, ethereum_network.blockscout_sc_verif_url)
-    plan.print(contracts)
+    # Deploy all of the contracts onto the network
+    proxy_address = deployer.run(plan, el_rpc, genesis_constants);
+
 
     operator_keygen.start_cli(plan)
 
@@ -49,7 +54,7 @@ def run(plan, args):
     # ----------------------------------
 
     # Generate public/private keypair for every operator we are going to deploy
-    public_keys, private_keys = keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
+    public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
     deployer.register_operators(plan, public_keys, genesis_constants, contracts.ssvNetworkAddress, el_rpc)
@@ -60,12 +65,11 @@ def run(plan, args):
         ssv_node.start(plan, index, config, cl_url, el_rpc, el_ws)
 
     for index in range(0, ANCHOR_NODE_COUNT):
-        # todo!() start the anchor nodes
+        plan.print("todo")
 
 
     # Validator key generation, key splitting, and deployment
     # ----------------------------------
 
-    keystore_results = validator_keygen.generate_validator_keystores(plan, eth_args)
+    keystore_results = validator_keygen.generate_keystores(plan, eth_args)
     split_keys = keysplit.split_keys(plan, eth_args, keystore_results)
-
