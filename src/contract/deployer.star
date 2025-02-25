@@ -1,5 +1,3 @@
-# HardHat has problems with node 20 so we use an older version of node
-HARDHAT_SERVICE_NAME = "hardhat"
 FOUNDRY_SERVICE_NAME = "foundry"
 
 image = ImageBuildSpec(
@@ -8,8 +6,8 @@ image = ImageBuildSpec(
     build_file="Dockerfile.contract"
 )
 
-
-def run(plan, el, genesis_constants):
+# deploy all of the contracts
+def deploy(plan):
     env_vars = get_env_vars(el, genesis_constants.PRE_FUNDED_ACCOUNTS[1].private_key)
 
     # start the foundry service
@@ -22,19 +20,15 @@ def run(plan, el, genesis_constants):
         )
     )
 
-    deploy(plan)
-
-
-# deploy all of the contracts
-def deploy(plan):
+    # deploy the contracts to the chain and return the contract address
     command_arr = ["forge", "script", "script/DeployAll.s.sol:DeployAll", "--broadcast", "--rpc-url", "${ETH_RPC_URL}", "--private-key", "${PRIVATE_KEY}", "--legacy", "-vvv"]
-
     out = plan.exec(
         service_name = FOUNDRY_SERVICE_NAME,
         recipe = ExecRecipe(
             command = ["/bin/sh", "-c", " ".join(command_arr)]
         )
     )
+    plan.print("output")
     plan.print(out)
 
 

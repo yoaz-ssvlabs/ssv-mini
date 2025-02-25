@@ -6,8 +6,7 @@ anchor_node = import_module("./src/nodes/anchor-node.star")
 blocks = import_module("./src/blockchain/blocks.star")
 utils = import_module("./src/utils/utils.star")
 deployer = import_module("./src/contract/deployer.star")
-
-# Generation modules
+interactions = import_module("./src/contract/interactions.star")
 operator_keygen = import_module("./src/generators/operator-keygen.star")
 validator_keygen = import_module("./src/generators/validator-keygen.star")
 keysplit = import_module("./src/generators/keysplit.star")
@@ -16,17 +15,6 @@ SSV_NODE_COUNT = 2
 ANCHOR_NODE_COUNT = 2
 
 VALIDATORS = 16
-
-STATIC_FILES_DIRPATH = "/static_files"
-
-SSV_CONFIG_DIRPATH = "/ssv-config"
-
-SSV_CONFIG_TEMPLATE_FILEPATH = (
-        STATIC_FILES_DIRPATH
-        + SSV_CONFIG_DIRPATH
-        + "/templates/ssv-config.yml.tmpl"
-)
-
 
 VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
 
@@ -43,20 +31,18 @@ def run(plan, args):
     blocks.wait_until_node_reached_block(plan, "el-1-geth-lighthouse", 1)
 
     # Deploy all of the contracts onto the network
-    proxy_address = deployer.run(plan, el_rpc, genesis_constants);
-
-
-    operator_keygen.start_cli(plan)
+    network_address = deployer.deploy(plan, el_rpc, genesis_constants);
 
 
     # Operator generation and deployment
     # ----------------------------------
 
     # Generate public/private keypair for every operator we are going to deploy
+    operator_keygen.start_cli(plan)
     public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
-    deployer.register_operators(plan, public_keys, genesis_constants, contracts.ssvNetworkAddress, el_rpc)
+    interactions.register_operators(plan, public_keys, genesis_constants, network_address, el_rpc)
 
     # Start up all of the nodes 
     for index in range(0, SSV_NODE_COUNT):
@@ -72,3 +58,6 @@ def run(plan, args):
 
     keystore_results = validator_keygen.generate_keystores(plan, eth_args)
     split_keys = keysplit.split_keys(plan, eth_args, keystore_results)
+    interactions.add_validators(plan, split_keys)
+
+    # The network should be functional here!
