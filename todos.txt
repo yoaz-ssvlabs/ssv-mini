@@ -1,5 +1,0 @@
-- move to anchor key generation
-- add the validator in
-- move to foundry
-- update the register operators to use rust & alloy
-

@@ -12,7 +12,6 @@ operator_keygen = import_module("./src/generators/operator-keygen.star")
 validator_keygen = import_module("./src/generators/validator-keygen.star")
 keysplit = import_module("./src/generators/keysplit.star")
 
-# Config constants (todo!() can pull these out)
 SSV_NODE_COUNT = 2
 ANCHOR_NODE_COUNT = 2
 
