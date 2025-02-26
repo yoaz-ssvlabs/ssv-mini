@@ -65,8 +65,7 @@ def run(plan, args):
         VALIDATORS
     );
 
-    plan.print(keystore_files)
-
+    keysplit.split_keys(plan, keystore_files)
 
 
 
