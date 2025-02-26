@@ -34,7 +34,7 @@ def register_operators(plan, public_keys, network_address):
 
 
 
-def add_validators(plan, split_keys):
+def add_validators(plan, split_keys, network_address):
     plan.print("todo: add validators")
 
 

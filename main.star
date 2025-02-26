@@ -12,8 +12,7 @@ validator_keygen = import_module("./src/generators/validator-keygen.star")
 keysplit = import_module("./src/generators/keysplit.star")
 
 # todo list:
-# todo!() network address extraction and operator id extraction
-# generate the validator keys
+# network address extraction and operator id extraction
 # split the validator keys
 # register the validators on the network
 # start the anchor nodes
@@ -21,16 +20,17 @@ keysplit = import_module("./src/generators/keysplit.star")
 SSV_NODE_COUNT = 2
 ANCHOR_NODE_COUNT = 2
 
+# These are the ssv specific validators
 VALIDATORS = 16
 
 VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
 
 def run(plan, args):
+    # Generate the keys for the SSV specific validators
+    genesis_validator_count = args["network_params"]["preregistered_validator_count"]
+
     ethereum_network = ethereum_package.run(plan, args)
     eth_args = input_parser.input_parser(plan, args)
-    args["network_params"]["preregistered_validator_count"] += VALIDATORS
-
-    plan.remove_service(VALIDATOR_KEYSTORE_SERVICE)
 
     cl_url, el_rpc, el_ws = utils.get_eth_urls(ethereum_network.all_participants)
     blocks.wait_until_node_reached_block(plan, "el-1-geth-lighthouse", 1)
@@ -57,8 +57,18 @@ def run(plan, args):
     # Validator key generation, key splitting, and deployment
     # ----------------------------------
 
-    keystore_results = validator_keygen.generate_keystores(plan, eth_args)
-    split_keys = keysplit.split_keys(plan, eth_args, keystore_results)
-    interactions.add_validators(plan, split_keys, network_address)
+    # Generate new keystore files
+    keystore_files =  validator_keygen.generate_validator_keystores(
+        plan, 
+        eth_args.network_params.preregistered_validator_keys_mnemonic, 
+        genesis_validator_count, 
+        VALIDATORS
+    );
+
+    plan.print(keystore_files)
+
+
+
+
 
     # The network should be functional here!!
