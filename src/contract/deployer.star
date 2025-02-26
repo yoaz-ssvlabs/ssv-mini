@@ -7,7 +7,7 @@ image = ImageBuildSpec(
 )
 
 # deploy all of the contracts
-def deploy(plan):
+def deploy(plan, el, genesis_constants):
     env_vars = get_env_vars(el, genesis_constants.PRE_FUNDED_ACCOUNTS[1].private_key)
 
     # start the foundry service
@@ -16,7 +16,10 @@ def deploy(plan):
         config = ServiceConfig(
             image=image,
             entrypoint=["tail", "-f", "/dev/null"],
-            env_vars = env_vars
+            env_vars = env_vars,
+            files = {
+                "/app/script/register": plan.upload_files("RegisterOperators.s.sol")
+            }
         )
     )
 
@@ -28,9 +31,8 @@ def deploy(plan):
             command = ["/bin/sh", "-c", " ".join(command_arr)]
         )
     )
-    plan.print("output")
-    plan.print(out)
 
+    return "0xBFfF570853d97636b78ebf262af953308924D3D8"
 
 
 # set the environment variables for contract deployment
@@ -43,6 +45,7 @@ def get_env_vars(eth1_url, private_key):
         "OPERATOR_MAX_FEE_INCREASE": "3",
         "DECLARE_OPERATOR_FEE_PERIOD": "259200",  # 3 days
         "EXECUTE_OPERATOR_FEE_PERIOD": "345600",  # 4 days
-        "VALIDATORS_PER_OPERATOR_LIMIT": "500"
+        "VALIDATORS_PER_OPERATOR_LIMIT": "500",
+        "OPERATOR_KEYS_FILE": "/app/operator_keys.json"
     }
 

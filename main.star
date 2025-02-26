@@ -19,7 +19,6 @@ VALIDATORS = 16
 VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
 
 def run(plan, args):
-
     ethereum_network = ethereum_package.run(plan, args)
     eth_args = input_parser.input_parser(plan, args)
     args["network_params"]["preregistered_validator_count"] += VALIDATORS
@@ -27,7 +26,6 @@ def run(plan, args):
     plan.remove_service(VALIDATOR_KEYSTORE_SERVICE)
 
     cl_url, el_rpc, el_ws = utils.get_eth_urls(ethereum_network.all_participants)
-    ssv_config_template = read_file(SSV_CONFIG_TEMPLATE_FILEPATH);
     blocks.wait_until_node_reached_block(plan, "el-1-geth-lighthouse", 1)
 
     # Deploy all of the contracts onto the network
@@ -42,7 +40,8 @@ def run(plan, args):
     public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
-    interactions.register_operators(plan, public_keys, genesis_constants, network_address, el_rpc)
+    interactions.register_operators(plan, public_keys, network_address)
+    '''
 
     # Start up all of the nodes 
     for index in range(0, SSV_NODE_COUNT):
@@ -59,5 +58,6 @@ def run(plan, args):
     keystore_results = validator_keygen.generate_keystores(plan, eth_args)
     split_keys = keysplit.split_keys(plan, eth_args, keystore_results)
     interactions.add_validators(plan, split_keys)
+    '''
 
     # The network should be functional here!

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y git curl bash
 
 # Clone the specific branch of the SSV Network project from the Git repository
 RUN git clone --branch foundry https://github.com/Zacholme7/ssv-network .
+RUN cd . && git pull origin foundry
 
 # Install dependencies via Foundry
 RUN forge install
