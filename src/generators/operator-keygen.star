@@ -1,12 +1,15 @@
 ANCHOR_IMAGE = "zholme/anchor-unstable:latest"
 ANCHOR_CLI_SERVICE_NAME = "anchor"
 
-def start_cli(plan):
+def start_cli(plan, keystores):
     plan.add_service(
         name=ANCHOR_CLI_SERVICE_NAME,
         config=ServiceConfig(
             image=ANCHOR_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
+            files={
+                "/keystores": keystores.files_artifact_uuid,
+            },
         ),
     )
 

@@ -39,11 +39,19 @@ def run(plan, args):
     network_address = deployer.deploy(plan, el_rpc, genesis_constants);
 
 
+    # Generate new keystore files
+    keystore_files =  validator_keygen.generate_validator_keystores(
+        plan, 
+        eth_args.network_params.preregistered_validator_keys_mnemonic, 
+        genesis_validator_count, 
+        VALIDATORS
+    );
+
     # Operator generation and deployment
     # ----------------------------------
 
     # Generate public/private keypair for every operator we are going to deploy
-    operator_keygen.start_cli(plan)
+    operator_keygen.start_cli(plan, keystore_files)
     public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
@@ -54,18 +62,8 @@ def run(plan, args):
         plan.print("todo")
 
 
-    # Validator key generation, key splitting, and deployment
-    # ----------------------------------
 
-    # Generate new keystore files
-    keystore_files =  validator_keygen.generate_validator_keystores(
-        plan, 
-        eth_args.network_params.preregistered_validator_keys_mnemonic, 
-        genesis_validator_count, 
-        VALIDATORS
-    );
-
-    keysplit.split_keys(plan, keystore_files)
+    #keysplit.split_keys(plan, keystore_files)
 
 
 
