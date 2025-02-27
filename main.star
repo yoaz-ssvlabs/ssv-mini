@@ -11,12 +11,6 @@ operator_keygen = import_module("./src/generators/operator-keygen.star")
 validator_keygen = import_module("./src/generators/validator-keygen.star")
 keysplit = import_module("./src/generators/keysplit.star")
 
-# todo list:
-# network address extraction and operator id extraction
-# split the validator keys
-# register the validators on the network
-# start the anchor nodes
-
 SSV_NODE_COUNT = 2
 ANCHOR_NODE_COUNT = 2
 
@@ -46,9 +40,6 @@ def run(plan, args):
         VALIDATORS
     );
 
-    # Operator generation and deployment
-    # ----------------------------------
-
     # Generate public/private keypair for every operator we are going to deploy
     operator_keygen.start_cli(plan, keystore_files)
     public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
@@ -58,13 +49,30 @@ def run(plan, args):
 
     # Start up the anchor nodes
     for index in range(0, ANCHOR_NODE_COUNT):
-        plan.print("todo")
+        plan.print("start anchor node")
+
+    # Start up all of the ssv nodes
+    for index in range(0, SSV_NODE_COUNT):
+        plan.print("start ssv node");
 
 
+    # Split the ssv validator keys into into keyshares
+    split_keys_data = keysplit.split_keys(
+        plan, 
+        keystore_files, 
+        operator_ids, 
+        public_keys, 
+        network_address, 
+        OWNER_ADDRESS
+    )
 
-    keysplit.split_keys(plan, keystore_files, public_keys, ids)
-
-
-
-
-    # The network should be functional here!!
+    # Register validators on the network
+    interactions.register_validators(
+        plan,
+        split_keys_data,
+        network_address,
+        OWNER_ADDRESS,
+        operator_ids
+    )
+    
+    # The network should be functional here

@@ -1,4 +1,4 @@
-ANCHOR_IMAGE = "zholme/anchor-unstable:latest"
+ANCHOR_IMAGE = "zholme/anchor-unstable:1.3"
 ANCHOR_CLI_SERVICE_NAME = "anchor"
 
 def start_cli(plan, keystores):

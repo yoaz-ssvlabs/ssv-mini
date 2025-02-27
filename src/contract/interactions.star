@@ -18,24 +18,41 @@ def register_operators(plan, public_keys, network_address):
         "--sig", "\'run(address)\'", network_address,
         "--rpc-url", "${ETH_RPC_URL}",
         "--private-key", "${PRIVATE_KEY}",
-        "--broadcast", "--legacy"
+        "--broadcast", "--legacy", "--silent"
     ]
 
-    out = plan.exec(
+
+    result = plan.exec(
         service_name="foundry",
         recipe=ExecRecipe(
-            command = ["/bin/sh", "-c", " ".join(command_arr)]
-            
+            command=["/bin/sh", "-c", " ".join(command_arr)],
         )
     )
 
-    # todo!() probs return all of the ids??
+    # todo!() figure out how to get the ids
+    operator_ids = []
+    return operator_ids
 
 
-
-
-def add_validators(plan, split_keys, network_address):
-    plan.print("todo: add validators")
-
-
+def register_validators(plan, split_keys_data, network_address, owner_address, operator_ids):
+    # Generate the operator IDs assignment code
+    operator_ids_assignment = ""
+    for i, op_id in enumerate(operator_ids):
+        operator_ids_assignment += f"operatorIds[{i}] = {op_id};\n    "
+    
+    # Replace the placeholder
+    register_validator_script = register_validator_script.replace(
+        "{operator_ids_assignment}", 
+        operator_ids_assignment
+    )
+    
+    # Create the script file in the foundry container
+    plan.exec(
+        service_name="foundry",
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", f"echo '{register_validator_script}' > /app/script/RegisterValidator.s.sol"]
+        )
+    )
+    
+    plan.print("Created validator registration script")
 

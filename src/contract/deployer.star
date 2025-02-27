@@ -24,7 +24,7 @@ def deploy(plan, el, genesis_constants):
     )
 
     # deploy the contracts to the chain and return the contract address
-    command_arr = ["forge", "script", "script/DeployAll.s.sol:DeployAll", "--broadcast", "--rpc-url", "${ETH_RPC_URL}", "--private-key", "${PRIVATE_KEY}", "--legacy", "-vvv"]
+    command_arr = ["forge", "script", "script/DeployAll.s.sol:DeployAll", "--broadcast", "--rpc-url", "${ETH_RPC_URL}", "--private-key", "${PRIVATE_KEY}", "--legacy", "--silent"]
     out = plan.exec(
         service_name = FOUNDRY_SERVICE_NAME,
         recipe = ExecRecipe(
