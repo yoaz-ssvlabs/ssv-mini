@@ -38,7 +38,6 @@ def run(plan, args):
     # Deploy all of the contracts onto the network
     network_address = deployer.deploy(plan, el_rpc, genesis_constants);
 
-
     # Generate new keystore files
     keystore_files =  validator_keygen.generate_validator_keystores(
         plan, 
@@ -55,7 +54,7 @@ def run(plan, args):
     public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
-    interactions.register_operators(plan, public_keys, network_address)
+    ids = interactions.register_operators(plan, public_keys, network_address)
 
     # Start up the anchor nodes
     for index in range(0, ANCHOR_NODE_COUNT):
@@ -63,7 +62,7 @@ def run(plan, args):
 
 
 
-    #keysplit.split_keys(plan, keystore_files)
+    keysplit.split_keys(plan, keystore_files, public_keys, ids)
 
 
 
