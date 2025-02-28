@@ -1,11 +1,7 @@
 ANCHOR_KEYSPLIT = "anchor-keysplit"
 ANCHOR_IMAGE = "zholme/anchor-unstable:latest"
 
-def split_keys(plan, keystores, operator_ids, operator_public_keys, network_address, owner_address):
-    split_data = []
-    return split_data
-
-    '''
+def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address):
     # Create a service for running the keysplit operation
     # this needs to have access to the validator keystores, the operator ids, 
     # (could use onchain split to get rid of needed to pass in the rsa keys)??
@@ -15,12 +11,20 @@ def split_keys(plan, keystores, operator_ids, operator_public_keys, network_addr
             image=ANCHOR_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
             files={
+                # Mount the operator data file
+                "/operator_data": operator_data_artifact,
                 # Mount the keystores directory
                 "/keystores": keystores.files_artifact_uuid,
             },
         )
+
     )
 
+
+    split_data = []
+    return split_data
+
+    '''
     # execute the keysplit
     # tood!() should this be a shell script??
     keysplit_cmd = f"/usr/local/bin/app keysplit onchain \

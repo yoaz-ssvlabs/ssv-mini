@@ -17,6 +17,9 @@ ANCHOR_NODE_COUNT = 2
 # These are the ssv specific validators
 VALIDATORS = 16
 
+# todo abstract this away/specify some amount of owners
+OWNER_ADDRESS = "0x0000000000000000000000000000000000000000"
+
 VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
 
 def run(plan, args):
@@ -46,9 +49,8 @@ def run(plan, args):
 
     # Once we have all of the keys, register each operator with the network
     # this will return the pairing of operator id with its public key
-    ids, public_keys = interactions.register_operators(plan, public_keys, network_address)
+    operator_data_artifact = interactions.register_operators(plan, public_keys, network_address)
 
-    '''
     # Start up the anchor nodes
     for index in range(0, ANCHOR_NODE_COUNT):
         plan.print("start anchor node")
@@ -57,18 +59,16 @@ def run(plan, args):
     for index in range(0, SSV_NODE_COUNT):
         plan.print("start ssv node");
 
-
-
     # Split the ssv validator keys into into keyshares
     split_keys_data = keysplit.split_keys(
         plan, 
         keystore_files, 
-        operator_ids, 
-        public_keys, 
+        operator_data_artifact,
         network_address, 
         OWNER_ADDRESS
     )
 
+    '''
     # Register validators on the network
     interactions.register_validators(
         plan,

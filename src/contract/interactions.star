@@ -21,27 +21,22 @@ def register_operators(plan, public_keys, network_address):
         "--broadcast", "--legacy", "--silent", 
     ]
 
-
-    result = plan.exec(
+    plan.exec(
         service_name="foundry",
         recipe=ExecRecipe(
             command=["/bin/sh", "-c", " ".join(command_arr)],
         )
     )
 
-    # Extract operator IDs from the generated JSON file
-    result = plan.exec(
+    # get a file artifact to the operator data
+    operator_data_artifact = plan.store_service_files(
         service_name="foundry",
-        recipe=ExecRecipe(
-            command=["/bin/sh", "-c", "cat /app/operator_data.json"],
-            extract={
-                "operator_ids": "fromjson | .operators[].id",
-                "public_keys": "fromjson | .operators[].publicKey",
-            }
-        ),
+        src="/app/operator_data.json",
+        name="operator_data.json"
     )
-    
-    return result["extract.operator_ids"], result["extract.public_keys"]
+
+    return operator_data_artifact
+
 
 def register_validators(plan, split_keys_data, network_address, owner_address, operator_ids):
     plan.print("Registering validators")
