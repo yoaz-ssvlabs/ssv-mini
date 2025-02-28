@@ -45,8 +45,10 @@ def run(plan, args):
     public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
-    ids = interactions.register_operators(plan, public_keys, network_address)
+    # this will return the pairing of operator id with its public key
+    ids, public_keys = interactions.register_operators(plan, public_keys, network_address)
 
+    '''
     # Start up the anchor nodes
     for index in range(0, ANCHOR_NODE_COUNT):
         plan.print("start anchor node")
@@ -54,6 +56,7 @@ def run(plan, args):
     # Start up all of the ssv nodes
     for index in range(0, SSV_NODE_COUNT):
         plan.print("start ssv node");
+
 
 
     # Split the ssv validator keys into into keyshares
@@ -74,5 +77,6 @@ def run(plan, args):
         OWNER_ADDRESS,
         operator_ids
     )
+    '''
     
     # The network should be functional here

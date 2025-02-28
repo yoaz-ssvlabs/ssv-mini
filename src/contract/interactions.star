@@ -18,7 +18,7 @@ def register_operators(plan, public_keys, network_address):
         "--sig", "\'run(address)\'", network_address,
         "--rpc-url", "${ETH_RPC_URL}",
         "--private-key", "${PRIVATE_KEY}",
-        "--broadcast", "--legacy", "--silent"
+        "--broadcast", "--legacy", "--silent", 
     ]
 
 
@@ -29,12 +29,23 @@ def register_operators(plan, public_keys, network_address):
         )
     )
 
-    # todo!() figure out how to get the ids
-    operator_ids = []
-    return operator_ids
-
+    # Extract operator IDs from the generated JSON file
+    result = plan.exec(
+        service_name="foundry",
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", "cat /app/operator_data.json"],
+            extract={
+                "operator_ids": "fromjson | .operators[].id",
+                "public_keys": "fromjson | .operators[].publicKey",
+            }
+        ),
+    )
+    
+    return result["extract.operator_ids"], result["extract.public_keys"]
 
 def register_validators(plan, split_keys_data, network_address, owner_address, operator_ids):
+    plan.print("Registering validators")
+    '''
     # Generate the operator IDs assignment code
     operator_ids_assignment = ""
     for i, op_id in enumerate(operator_ids):
@@ -55,4 +66,5 @@ def register_validators(plan, split_keys_data, network_address, owner_address, o
     )
     
     plan.print("Created validator registration script")
+    '''
 

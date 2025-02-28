@@ -2,7 +2,10 @@ ANCHOR_KEYSPLIT = "anchor-keysplit"
 ANCHOR_IMAGE = "zholme/anchor-unstable:latest"
 
 def split_keys(plan, keystores, operator_ids, operator_public_keys, network_address, owner_address):
+    split_data = []
+    return split_data
 
+    '''
     # Create a service for running the keysplit operation
     # this needs to have access to the validator keystores, the operator ids, 
     # (could use onchain split to get rid of needed to pass in the rsa keys)??
@@ -46,7 +49,8 @@ def split_keys(plan, keystores, operator_ids, operator_public_keys, network_addr
     )
     
     # list of the calldata to be sent to the chain
-    split_data = []
-    return split_results
+    spulit_data = []
+    retrn split_results
+    '''
 
 

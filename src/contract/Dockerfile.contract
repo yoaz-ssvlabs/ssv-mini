@@ -1,15 +1,20 @@
 FROM ghcr.io/foundry-rs/foundry:latest
 
 USER root
-
 WORKDIR /app
 
-# Install Git and other dependencies using apt instead of apk
+# Add a build argument with a default value
+ARG REPO_VERSION=1
+
+# Use the argument to invalidate cache
+RUN echo "Version: ${REPO_VERSION}"
+
+# Install Git and other dependencies
 RUN apt-get update && apt-get install -y git curl bash
 
-# Clone the specific branch of the SSV Network project from the Git repository
-RUN git clone --branch foundry https://github.com/Zacholme7/ssv-network .
-RUN cd . && git pull origin foundry
+# Clone with --depth 1 and force pull to get latest
+RUN git clone --branch foundry --depth 1 https://github.com/Zacholme7/ssv-network .
+RUN cd . && git fetch --all && git reset --hard origin/foundry
 
 # Install dependencies via Foundry
 RUN forge install

@@ -19,6 +19,7 @@ contract RegisterOperators is Script {
     ssvNetwork = SSVNetwork(ssvNetworkAddress);
 
     string[] memory publicKeys = getOperatorPublicKeys();
+    uint64[] memory operatorIds = new uint64[](publicKeys.length);
 
     vm.startBroadcast();
 
@@ -30,21 +31,51 @@ contract RegisterOperators is Script {
         OPERATOR_FEE,
         SET_AS_PRIVATE
       );
-       console2.log("Successfully registered operator ID:", id);
-       console2.log("Public key:", publicKeys[i]);
+      operatorIds[i] = id;
+      console2.log("Successfully registered operator ID:", id);
+      console2.log("Public key:", publicKeys[i]);
     }
 
     vm.stopBroadcast();
-
+    
+    // Write operators data to JSON file
+    writeOperatorsToFile(publicKeys, operatorIds);
   }
 
-
   function getOperatorPublicKeys() internal view returns (string[] memory) {
-    string memory publicKeysFile = vm.envOr("OPERATOR_KEYS_FILE", string(""));
+    string memory publicKeysFile = "operator_keys.json";
+
 
     // Read from JSON file
     string memory json = vm.readFile(publicKeysFile);
     string[] memory keys = stdJson.readStringArray(json, "$.publicKeys");
     return keys;
+  }
+
+  function writeOperatorsToFile(string[] memory publicKeys, uint64[] memory operatorIds) internal {
+    string memory outputPath = "./operator_data.json";
+    
+    // Start building JSON string
+    string memory json = '{"operators":[';
+    
+    for (uint256 i = 0; i < publicKeys.length; i++) {
+      // Add each operator as a JSON object
+      json = string.concat(
+        json,
+        i > 0 ? ',' : '',
+        '{"id":',
+        vm.toString(operatorIds[i]),
+        ',"publicKey":"',
+        publicKeys[i],
+        '"}'
+      );
+    }
+    
+    // Close the JSON array and object
+    json = string.concat(json, ']}');
+    
+    // Write to file
+    vm.writeFile(outputPath, json);
+    console2.log("Operator data written to:", outputPath);
   }
 }
