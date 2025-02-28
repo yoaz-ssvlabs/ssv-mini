@@ -18,7 +18,7 @@ def deploy(plan, el, genesis_constants):
             entrypoint=["tail", "-f", "/dev/null"],
             env_vars = env_vars,
             files = {
-                "/app/script/register": plan.upload_files("RegisterOperators.s.sol")
+                "/app/script/register": plan.upload_files("./registration/RegisterOperators.s.sol")
             }
         )
     )
