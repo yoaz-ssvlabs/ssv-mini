@@ -60,7 +60,7 @@ def run(plan, args):
         plan.print("start ssv node");
 
     # Split the ssv validator keys into into keyshares
-    split_keys_data = keysplit.split_keys(
+    keyshare_artifact = keysplit.split_keys(
         plan, 
         keystore_files, 
         operator_data_artifact,
@@ -68,14 +68,13 @@ def run(plan, args):
         OWNER_ADDRESS
     )
 
-    '''
     # Register validators on the network
+    '''
     interactions.register_validators(
         plan,
-        split_keys_data,
+        keyshare_artifact,
         network_address,
         OWNER_ADDRESS,
-        operator_ids
     )
     '''
     

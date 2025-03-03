@@ -2,10 +2,6 @@ ANCHOR_KEYSPLIT = "anchor-keysplit"
 ANCHOR_IMAGE = "zholme/anchor-unstable:latest"
 
 def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address):
-    # Create a service for running the keysplit operation
-    # this needs to have access to the validator keystores, the operator ids, 
-    # start the foundry service
-    # (could use onchain split to get rid of needed to pass in the rsa keys)??
     plan.add_service(
         name=ANCHOR_KEYSPLIT,
         config=ServiceConfig(
@@ -20,9 +16,21 @@ def split_keys(plan, keystores, operator_data_artifact, network_address, owner_a
     )
 
 
-    # need some shell script to run everything
+    plan.exec(
+        service_name=ANCHOR_KEYSPLIT,
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", "chmod u+x /usr/local/bin/keysplit/keysplit.sh && cd /usr/local/bin/keysplit && ./keysplit.sh"]
+        )
+    )
 
 
-    split_data = []
-    return split_data
 
+
+    keyshare_artifact = plan.store_service_files(
+        service_name = ANCHOR_KEYSPLIT,
+        src="/usr/local/bin/keysplit/out.json",
+        name="keyshares.json"
+    )
+
+
+    return keyshare_artifact

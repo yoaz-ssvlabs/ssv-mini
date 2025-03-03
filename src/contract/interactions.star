@@ -38,8 +38,7 @@ def register_operators(plan, public_keys, network_address):
     return operator_data_artifact
 
 
-def register_validators(plan, split_keys_data, network_address, owner_address, operator_ids):
-    plan.print("Registering validators")
+def register_validators(plan, keyshare_artifact, network_address, owner_address, operator_ids):
     '''
     # Generate the operator IDs assignment code
     operator_ids_assignment = ""
