@@ -44,7 +44,7 @@ def register_operators(plan, public_keys, network_address):
     return operator_data_artifact
 
 
-def register_validators(plan, keyshare_artifact, network_address, owner_address, rpc, genesis_constants):
+def register_validators(plan, keyshare_artifact, network_address, token_address, rpc, genesis_constants):
 
 
     # start the foundry service
@@ -56,12 +56,13 @@ def register_validators(plan, keyshare_artifact, network_address, owner_address,
             env_vars = {
                 "ETH_RPC_URL": rpc,
                 "PRIVATE_KEY": genesis_constants.PRE_FUNDED_ACCOUNTS[1].private_key,
-                "SSV_NETWORK_ADDRESS": network_address
+                "SSV_NETWORK_ADDRESS": network_address,
+                "SSV_TOKEN_ADDRESS": token_address
             },
             files = {
                 "/app/script/register-validator": plan.upload_files("./registration/RegisterValidators.s.sol"),
                 "/app/script/keyshares": keyshare_artifact,
-                "/app/script/register": plan.upload_files("./validator-register.sh")
+                "/app/script/register": plan.upload_files("../scripts/register-validators.sh")
             }
         )
     )
@@ -69,7 +70,7 @@ def register_validators(plan, keyshare_artifact, network_address, owner_address,
     plan.exec(
         service_name="register-validator",
         recipe=ExecRecipe(
-            command=["/bin/sh", "-c", "chmod u+x script/register/validator-register.sh && ./script/register/validator-register.sh "]
+            command=["/bin/sh", "-c", "chmod u+x script/register/register-validators.sh && ./script/register/register-validators.sh "]
         )
     )
 

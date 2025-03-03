@@ -1,48 +1,40 @@
 shared_utils = import_module("../utils/utils.star")
-
-# Config constants
 SSV_CONFIG_DIR_PATH_ON_SERVICE = "/ssv-config"
-CUSTOM_NETWORK_NAME = "local-network"
-GENESIS_DOMAIN_TYPE = "0x00000501"
-ALAN_DOMAIN_TYPE = "0x00000502"
-REGISTRY_SYNC_OFFSET = "181612"
-REGISTRY_CONTRACT_ADDR = "0x38A4794cCEd47d3baf7370CcC43B560D3a1beEFA"
-LOG_LEVEL = "debug"
 
-ANCHOR_IMAGE = "zholme/anchor-unstable"
-
-# Generat ethe configuration for the node
 def generate_config(
         plan,
         index,
         ssv_config_template,
-        execution_client,
         consensus_client,
+        execution_client,
         operator_private_key,
 ):
     db_path = "./data/db/{}/".format(index)
     file_name = "ssv-config-{}.yaml".format(index)
+    log_level = "debug"
 
-    # Ensure URLs have correct protocol prefixes and no trailing slashes
-    beacon_url = consensus_client.rstrip("/")
-    execution_url = execution_client.rstrip("/")
-
-    # Log the URLs we're using for debugging
-    plan.print("Beacon node URL: " +  beacon_url)
-    plan.print("Execution client URL: " + execution_url)
+    custom_network_name = "local-network"
+    genesis_domain_type = "0x00000501"
+    alan_domain_type = "0x00000502"
+    registry_sync_offset = "0"
+    registry_contract_addr = "0xBFfF570853d97636b78ebf262af953308924D3D8"
+    local_events_path = "./config/events.yaml"
+    plan.print(consensus_client)
+    plan.print(execution_client)
 
     # Prepare data for the template
     data = struct(
-        LogLevel=LOG_LEVEL,
+        LogLevel=log_level,
         DBPath=db_path,
-        BeaconNodeAddr=beacon_url,
-        ETH1Addr=execution_url,
-        CustomNetworkName=CUSTOM_NETWORK_NAME,
-        GenesisDomainType=GENESIS_DOMAIN_TYPE,
-        AlanDomainType=ALAN_DOMAIN_TYPE,
-        RegistrySyncOffset=REGISTRY_SYNC_OFFSET,
-        RegistryContractAddr=REGISTRY_CONTRACT_ADDR,
+        BeaconNodeAddr=consensus_client,
+        ETH1Addr=execution_client,
+        CustomNetworkName=custom_network_name,
+        GenesisDomainType=genesis_domain_type,
+        AlanDomainType=alan_domain_type,
+        RegistrySyncOffset=registry_sync_offset,
+        RegistryContractAddr=registry_contract_addr,
         OperatorPrivateKey=operator_private_key,
+        LocalEventsPath=local_events_path,
     )
 
     # Render the template into a file artifact
@@ -55,21 +47,30 @@ def generate_config(
 
     return rendered_artifact
 
+def start(plan, index, config_artifact):
+    service_name = "ssv-node-{}".format(index)
+    image = "ssv-node:custom-config"  # Matches the new Docker image name
+    config_path = "{}/ssv-config-{}.yaml".format(SSV_CONFIG_DIR_PATH_ON_SERVICE, index)
 
-# Start a new instance of an anchor node
-def start(plan, index, config_artifact, consensus_url, execution_url, execution_ws):
-
-    node_name = "anchor-{}".format(index)
-    plan.add_service(
-        name = node_name,
-        config = ServiceConfig(
-            image = ANCHOR_IMAGE,
-            entrypoint = [
-                "/usr/local/bin/app",
-                "anchor",
-                "--beacon-nodes", consensus_url,
-                "--execution-nodes", execution_url
-            ]
-        ),
+    # Minimal service configuration
+    service_config = ServiceConfig(
+        image=image,
+        entrypoint=[
+            "make",
+            "BUILD_PATH=/go/bin/ssvnode",
+            "start-node",
+        ],
+        cmd=[],
+        env_vars={
+            "CONFIG_PATH": config_path,  # Pass the path as an environment variable
+        },
+        files={
+            SSV_CONFIG_DIR_PATH_ON_SERVICE: config_artifact,  # Map the configuration artifact to the desired path
+        },
     )
 
+    # Add the service
+    plan.add_service(service_name, service_config)
+
+    # Return the service object
+    return plan.get_service(service_name)

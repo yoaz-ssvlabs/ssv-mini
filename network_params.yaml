@@ -1,12 +1,5 @@
 ## TODO: different network params for different tests or setups
 
-network_params:
-  network_id: "3151908"
-  deneb_fork_epoch: 0
-  electra_fork_epoch: 999999
-  preregistered_validator_count: 64
-  preset: minimal
-
 participants:
   - el_type: geth
     el_image: ethereum/client-go:latest
@@ -80,3 +73,10 @@ mev_params:
   # Optional parameters to send to the custom_flood script that sends reliable payloads
   custom_flood_params:
     interval_between_transactions: 1
+
+network_params:
+  network_id: "3151908"
+  deneb_fork_epoch: 0
+  electra_fork_epoch: 999999
+  preregistered_validator_count: 64
+  preset: minimal
