@@ -3,7 +3,11 @@ FOUNDRY_SERVICE_NAME = "foundry"
 image = ImageBuildSpec(
     image_name="localssv/ssv-network",
     build_context_dir="./",
-    build_file="Dockerfile.contract"
+    build_file="Dockerfile.contract",
+    build_args = {
+        # Use Kurtosis's built-in UUID generator to bust cache
+        "REPO_VERSION": "{{kurtosis.run_uuid}}",  # Unique for every run
+    },
 )
 
 # deploy all of the contracts
@@ -18,13 +22,14 @@ def deploy(plan, el, genesis_constants):
             entrypoint=["tail", "-f", "/dev/null"],
             env_vars = env_vars,
             files = {
-                "/app/script/register": plan.upload_files("./registration/RegisterOperators.s.sol")
+                "/app/script/register-operator": plan.upload_files("./registration/RegisterOperators.s.sol"),
+                "/app/script/register-validator": plan.upload_files("./registration/RegisterValidators.s.sol")
             }
         )
     )
 
     # deploy the contracts to the chain and return the contract address
-    command_arr = ["forge", "script", "script/DeployAll.s.sol:DeployAll", "--broadcast", "--rpc-url", "${ETH_RPC_URL}", "--private-key", "${PRIVATE_KEY}", "--legacy", "--silent"]
+    command_arr = ["forge", "script", "script/DeployAll.s.sol:DeployAll", "--broadcast", "--rpc-url", "${ETH_RPC_URL}", "--private-key", "${PRIVATE_KEY}", "--legacy"]
     out = plan.exec(
         service_name = FOUNDRY_SERVICE_NAME,
         recipe = ExecRecipe(
@@ -32,7 +37,7 @@ def deploy(plan, el, genesis_constants):
         )
     )
 
-    # TODO!() get this from the output
+    # TODO!() get this from the output, 0x6db20C530b3F96CD5ef64Da2b1b931Cb8f264009
     return "0xBFfF570853d97636b78ebf262af953308924D3D8"
 
 

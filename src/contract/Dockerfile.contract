@@ -10,7 +10,7 @@ ARG REPO_VERSION=1
 RUN echo "Version: ${REPO_VERSION}"
 
 # Install Git and other dependencies
-RUN apt-get update && apt-get install -y git curl bash
+RUN apt-get update && apt-get install -y git curl bash jq
 
 # Clone with --depth 1 and force pull to get latest
 RUN git clone --branch foundry --depth 1 https://github.com/Zacholme7/ssv-network .

@@ -1,3 +1,9 @@
+image = ImageBuildSpec(
+    image_name="localssv/ssv-network",
+    build_context_dir="./",
+    build_file="Dockerfile.contract"
+)
+
 def register_operators(plan, public_keys, network_address):
     # Write the keys into the container as json.
     quoted_keys = []
@@ -14,11 +20,11 @@ def register_operators(plan, public_keys, network_address):
 
     # Now, register all of the operators
     command_arr=[
-        "forge", "script", "script/register/RegisterOperators.s.sol:RegisterOperators",
+        "forge", "script", "script/register-operator/RegisterOperators.s.sol:RegisterOperators",
         "--sig", "\'run(address)\'", network_address,
         "--rpc-url", "${ETH_RPC_URL}",
         "--private-key", "${PRIVATE_KEY}",
-        "--broadcast", "--legacy", "--silent", 
+        "--broadcast", "--legacy" 
     ]
 
     plan.exec(
@@ -38,27 +44,35 @@ def register_operators(plan, public_keys, network_address):
     return operator_data_artifact
 
 
-def register_validators(plan, keyshare_artifact, network_address, owner_address, operator_ids):
-    '''
-    # Generate the operator IDs assignment code
-    operator_ids_assignment = ""
-    for i, op_id in enumerate(operator_ids):
-        operator_ids_assignment += f"operatorIds[{i}] = {op_id};\n    "
-    
-    # Replace the placeholder
-    register_validator_script = register_validator_script.replace(
-        "{operator_ids_assignment}", 
-        operator_ids_assignment
-    )
-    
-    # Create the script file in the foundry container
-    plan.exec(
-        service_name="foundry",
-        recipe=ExecRecipe(
-            command=["/bin/sh", "-c", f"echo '{register_validator_script}' > /app/script/RegisterValidator.s.sol"]
+def register_validators(plan, keyshare_artifact, network_address, owner_address, rpc, genesis_constants):
+
+
+    # start the foundry service
+    foundry_service = plan.add_service(
+        name = "register-validator",
+        config = ServiceConfig(
+            image=image,
+            entrypoint=["tail", "-f", "/dev/null"],
+            env_vars = {
+                "ETH_RPC_URL": rpc,
+                "PRIVATE_KEY": genesis_constants.PRE_FUNDED_ACCOUNTS[1].private_key,
+                "SSV_NETWORK_ADDRESS": network_address
+            },
+            files = {
+                "/app/script/register-validator": plan.upload_files("./registration/RegisterValidators.s.sol"),
+                "/app/script/keyshares": keyshare_artifact,
+                "/app/script/register": plan.upload_files("./validator-register.sh")
+            }
         )
     )
-    
-    plan.print("Created validator registration script")
-    '''
+
+    plan.exec(
+        service_name="register-validator",
+        recipe=ExecRecipe(
+            command=["/bin/sh", "-c", "chmod u+x script/register/validator-register.sh && ./script/register/validator-register.sh "]
+        )
+    )
+
+
+
 

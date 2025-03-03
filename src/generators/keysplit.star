@@ -15,16 +15,12 @@ def split_keys(plan, keystores, operator_data_artifact, network_address, owner_a
         )
     )
 
-
     plan.exec(
         service_name=ANCHOR_KEYSPLIT,
         recipe=ExecRecipe(
             command=["/bin/sh", "-c", "chmod u+x /usr/local/bin/keysplit/keysplit.sh && cd /usr/local/bin/keysplit && ./keysplit.sh"]
         )
     )
-
-
-
 
     keyshare_artifact = plan.store_service_files(
         service_name = ANCHOR_KEYSPLIT,

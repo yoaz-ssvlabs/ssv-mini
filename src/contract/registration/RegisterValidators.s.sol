@@ -5,14 +5,14 @@ import {SSVNetwork} from "src/SSVNetwork.sol";
 import {ISSVNetworkCore} from "src/interfaces/ISSVNetworkCore.sol";
 import {console2} from "forge-std/console2.sol";
 
-contract RegisterValidator is Script {{
+contract RegisterValidator is Script {
 
   SSVNetwork public ssvNetwork;
   
   // Initial deposit amount (adjust as needed)
   uint256 constant DEPOSIT_AMOUNT = 1 ether;
 
-  function run(address ssvNetworkAddress, bytes memory publicKey, bytes memory sharesData uint64[] operatorIds) external {{
+  function run(address ssvNetworkAddress, bytes memory publicKey, bytes memory sharesData, uint64[] memory operatorIds) external {
     ssvNetwork = SSVNetwork(ssvNetworkAddress);
     
     vm.startBroadcast();
@@ -36,5 +36,5 @@ contract RegisterValidator is Script {{
     console2.log("Successfully registered validator");
     
     vm.stopBroadcast();
-  }}
-}}
+  }
+}

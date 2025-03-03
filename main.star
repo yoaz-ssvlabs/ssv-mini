@@ -69,13 +69,13 @@ def run(plan, args):
     )
 
     # Register validators on the network
-    '''
     interactions.register_validators(
         plan,
         keyshare_artifact,
         network_address,
         OWNER_ADDRESS,
+        el_rpc,
+        genesis_constants
     )
-    '''
     
     # The network should be functional here
