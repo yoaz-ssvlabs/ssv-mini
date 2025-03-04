@@ -1,8 +1,4 @@
 #!/bin/bash
-
-# Define the owner address (hardcoded as specified)
-OWNER_ADDRESS="0x000000633b68f5D8D3a86593ebB815b4663BCBe0"
-OUTPUT_PATH="out.json"
 NONCE="0"
 
 VALIDATOR_KEY=$(ls ../keystores/keys/ | head -1)
@@ -25,7 +21,7 @@ done
   --keystore-path "$KEYSTORE_PATH" \
   --password "$PASSWORD" \
   --owner "$OWNER_ADDRESS" \
-  --output-path "$OUTPUT_PATH" \
+  --output-path "out.json" \
   --operators "$OPERATOR_IDS" \
   --nonce "$NONCE" \
   --public-keys "$PUBLIC_KEYS"

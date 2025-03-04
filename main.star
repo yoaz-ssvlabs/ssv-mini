@@ -10,22 +10,11 @@ interactions = import_module("./src/contract/interactions.star")
 operator_keygen = import_module("./src/generators/operator-keygen.star")
 validator_keygen = import_module("./src/generators/validator-keygen.star")
 keysplit = import_module("./src/generators/keysplit.star")
-static_files = import_module("./src/static_files/static_files.star")
 constants = import_module("./src/utils/constants.star")
-
-SSV_NODE_COUNT = 2
-ANCHOR_NODE_COUNT = 2
-
-# These are the ssv specific validators
-VALIDATORS = 16
-
-# todo abstract this away/specify some amount of owners
-OWNER_ADDRESS = "0x0000000000000000000000000000000000000000"
-
-VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
+ssv_keygen = import_module("./src/generators/ssv-keygen.star")
 
 def run(plan, args):
-
+    # Start up the chain
     ethereum_network = ethereum_package.run(plan, args)
     eth_args = input_parser.input_parser(plan, args)
 
@@ -40,30 +29,38 @@ def run(plan, args):
         plan, 
         eth_args.network_params.preregistered_validator_keys_mnemonic, 
         args["network_params"]["preregistered_validator_count"], 
-        VALIDATORS
+        constants.VALIDATORS
     );
 
     # Generate public/private keypair for every operator we are going to deploy
     operator_keygen.start_cli(plan, keystore_files)
-    public_keys, private_keys = operator_keygen.generate_keys(plan, SSV_NODE_COUNT + ANCHOR_NODE_COUNT);
+    tmp1, tmp2 = operator_keygen.generate_keys(plan, constants.SSV_NODE_COUNT + constants.ANCHOR_NODE_COUNT);
+
+    public_keys = []
+    private_keys = []
+    # operator_configs = []
+    ssv_keygen.start_cli(plan);
+    for index in range(0, constants.SSV_NODE_COUNT + 2):
+        keys = ssv_keygen.generate_operator_keys(plan)
+        private_key = keys.private_key
+        public_key = keys.public_key
+        public_keys.append(public_key)
+        private_keys.append(private_key)
+
+
 
     # Once we have all of the keys, register each operator with the network
     # this will return the pairing of operator id with its public key
     operator_data_artifact = interactions.register_operators(plan, public_keys, constants.SSV_NETWORK_PROXY_CONTRACT)
 
-    # Start up the anchor nodes
-    for index in range(0, ANCHOR_NODE_COUNT):
-        plan.print("start anchor node")
-
-
-    ssv_config_template = read_file(
-        static_files.SSV_CONFIG_TEMPLATE_FILEPATH
-    )
-
-    # Start up all of the ssv nodes
-    for index in range(0, SSV_NODE_COUNT):
-        config = ssv_node.generate_config(plan, index, ssv_config_template, cl_url, el_ws, private_keys[index])
+    # Start up the ssv nodes
+    for index in range(0, constants.SSV_NODE_COUNT):
+        config = ssv_node.generate_config(plan, index, cl_url, el_ws, private_keys[index])
         node_service = ssv_node.start(plan, index, config)
+
+    # Start up the anchor nodes
+    for index in range(0, constants.ANCHOR_NODE_COUNT):
+        anchor_node.start(plan)
 
     # Split the ssv validator keys into into keyshares
     keyshare_artifact = keysplit.split_keys(
@@ -71,7 +68,7 @@ def run(plan, args):
         keystore_files, 
         operator_data_artifact,
         constants.SSV_NETWORK_PROXY_CONTRACT, 
-        OWNER_ADDRESS
+        constants.OWNER_ADDRESS
     )
 
     # Register validators on the network

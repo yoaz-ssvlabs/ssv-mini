@@ -1,5 +1,7 @@
+constants = import_module("../utils/constants.star")
+
 ANCHOR_KEYSPLIT = "anchor-keysplit"
-ANCHOR_IMAGE = "zholme/anchor-unstable:latest"
+ANCHOR_IMAGE = "zholme/anchor-unstable:1.4"
 
 def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address):
     plan.add_service(
@@ -12,6 +14,9 @@ def split_keys(plan, keystores, operator_data_artifact, network_address, owner_a
                 "/usr/local/bin/keystores": keystores.files_artifact_uuid,
                 "/usr/local/bin/keysplit": plan.upload_files("../scripts/keysplit.sh")
             },
+            env_vars = {
+                "OWNER_ADDRESS": constants.OWNER_ADDRESS
+            }
         )
     )
 

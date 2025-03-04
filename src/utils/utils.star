@@ -1,13 +1,23 @@
 def get_eth_urls(all_participants):
-    # Use the first consensus layer (CL) and execution layer (EL) nodes
-    cl_hostname = "cl-1-lighthouse-geth"
-    el_hostname = "el-1-geth-lighthouse"
-    
-    # Build URLs using standard ports for each service
-    cl_uri = "http://{0}:4000".format(cl_hostname)         # Beacon node API
-    el_rpc_uri = "http://{0}:8545".format(el_hostname)     # JSON-RPC endpoint
-    el_ws_uri = "ws://{0}:8546".format(el_hostname)        # WebSocket endpoint
-    
+    el_ip_addr = all_participants[
+        0
+    ].el_context.ip_addr
+    el_ws_port = all_participants[
+        0
+    ].el_context.ws_port_num
+    el_rpc_port = all_participants[
+        0
+    ].el_context.rpc_port_num
+    el_rpc_uri = "http://{0}:{1}".format(el_ip_addr, el_rpc_port)
+    el_ws_uri = "ws://{0}:{1}".format(el_ip_addr, el_ws_port)
+    cl_ip_addr = all_participants[
+        0
+    ].cl_context.ip_addr
+    cl_http_port_num = all_participants[
+        0
+    ].cl_context.http_port
+    cl_uri = "http://{0}:{1}".format(cl_ip_addr, cl_http_port_num)
+
     return (cl_uri, el_rpc_uri, el_ws_uri)
 
 def new_template_and_data(template, template_data_json):

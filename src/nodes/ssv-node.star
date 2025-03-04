@@ -1,14 +1,21 @@
 shared_utils = import_module("../utils/utils.star")
+constants = import_module("../utils/constants.star")
+static_files = import_module("../static_files/static_files.star")
+
 SSV_CONFIG_DIR_PATH_ON_SERVICE = "/ssv-config"
 
 def generate_config(
         plan,
         index,
-        ssv_config_template,
         consensus_client,
         execution_client,
         operator_private_key,
 ):
+
+    ssv_config_template = read_file(
+        static_files.SSV_CONFIG_TEMPLATE_FILEPATH
+    )
+
     db_path = "./data/db/{}/".format(index)
     file_name = "ssv-config-{}.yaml".format(index)
     log_level = "debug"
@@ -16,11 +23,9 @@ def generate_config(
     custom_network_name = "local-network"
     genesis_domain_type = "0x00000501"
     alan_domain_type = "0x00000502"
-    registry_sync_offset = "0"
-    registry_contract_addr = "0xBFfF570853d97636b78ebf262af953308924D3D8"
+    registry_sync_offset = "1"
+    registry_contract_addr = constants.SSV_NETWORK_CONTRACT 
     local_events_path = "./config/events.yaml"
-    plan.print(consensus_client)
-    plan.print(execution_client)
 
     # Prepare data for the template
     data = struct(

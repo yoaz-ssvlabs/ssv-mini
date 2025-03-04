@@ -24,7 +24,7 @@ def register_operators(plan, public_keys, network_address):
         "--sig", "\'run(address)\'", network_address,
         "--rpc-url", "${ETH_RPC_URL}",
         "--private-key", "${PRIVATE_KEY}",
-        "--broadcast", "--legacy" 
+        "--broadcast", "--legacy", "--silent"
     ]
 
     plan.exec(
