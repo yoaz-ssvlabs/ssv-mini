@@ -11,7 +11,6 @@ operator_keygen = import_module("./src/generators/operator-keygen.star")
 validator_keygen = import_module("./src/generators/validator-keygen.star")
 keysplit = import_module("./src/generators/keysplit.star")
 constants = import_module("./src/utils/constants.star")
-ssv_keygen = import_module("./src/generators/ssv-keygen.star")
 
 def run(plan, args):
     # Start up the chain
