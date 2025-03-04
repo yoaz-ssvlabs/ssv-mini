@@ -1,7 +1,7 @@
 constants = import_module("../utils/constants.star")
 
 ANCHOR_KEYSPLIT = "anchor-keysplit"
-ANCHOR_IMAGE = "zholme/anchor-unstable:1.4"
+ANCHOR_IMAGE = "zholme/anchor-unstable:1.7"
 
 def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address):
     plan.add_service(

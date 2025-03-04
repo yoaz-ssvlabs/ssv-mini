@@ -1,4 +1,4 @@
-ANCHOR_IMAGE = "zholme/anchor-unstable:1.4"
+ANCHOR_IMAGE = "zholme/anchor-unstable:1.7"
 ANCHOR_CLI_SERVICE_NAME = "anchor"
 
 def start_cli(plan, keystores):
@@ -17,13 +17,15 @@ def start_cli(plan, keystores):
 def generate_keys(plan, num_keys):
     operator_public_keys = []
     operator_private_keys = []
+    pem_artifacts = []
 
     for index in range(0, num_keys):
         keys = generate_operator_keys(plan)
         operator_public_keys.append(keys.public_key)
         operator_private_keys.append(keys.private_key)
+        pem_artifacts.append(keys.artifact)
     
-    return operator_public_keys, operator_private_keys
+    return operator_public_keys, operator_private_keys, pem_artifacts
 
 
 # Generate a new keypair 
@@ -40,7 +42,14 @@ def generate_operator_keys(plan):
         ),
     )
 
+    pem_artifact = plan.store_service_files(
+        service_name=ANCHOR_CLI_SERVICE_NAME,
+        src="/usr/local/bin/key.pem",
+        name="key"
+    )
+
     return struct(
         public_key=result["extract.public"],
         private_key=result["extract.private"],
+        artifact=pem_artifact
     )

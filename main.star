@@ -34,20 +34,7 @@ def run(plan, args):
 
     # Generate public/private keypair for every operator we are going to deploy
     operator_keygen.start_cli(plan, keystore_files)
-    tmp1, tmp2 = operator_keygen.generate_keys(plan, constants.SSV_NODE_COUNT + constants.ANCHOR_NODE_COUNT);
-
-    public_keys = []
-    private_keys = []
-    # operator_configs = []
-    ssv_keygen.start_cli(plan);
-    for index in range(0, constants.SSV_NODE_COUNT + 2):
-        keys = ssv_keygen.generate_operator_keys(plan)
-        private_key = keys.private_key
-        public_key = keys.public_key
-        public_keys.append(public_key)
-        private_keys.append(private_key)
-
-
+    public_keys, private_keys, pem_artifacts = operator_keygen.generate_keys(plan, constants.SSV_NODE_COUNT + constants.ANCHOR_NODE_COUNT);
 
     # Once we have all of the keys, register each operator with the network
     # this will return the pairing of operator id with its public key
@@ -60,7 +47,7 @@ def run(plan, args):
 
     # Start up the anchor nodes
     for index in range(0, constants.ANCHOR_NODE_COUNT):
-        anchor_node.start(plan)
+        anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index])
 
     # Split the ssv validator keys into into keyshares
     keyshare_artifact = keysplit.split_keys(
