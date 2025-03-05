@@ -1,8 +1,4 @@
-image = ImageBuildSpec(
-    image_name="localssv/ssv-network",
-    build_context_dir="./",
-    build_file="Dockerfile.contract"
-)
+constants = import_module("../utils/constants.star")
 
 def register_operators(plan, public_keys, network_address):
     # Write the keys into the container as json.
@@ -12,7 +8,7 @@ def register_operators(plan, public_keys, network_address):
 
     json_content = '{{"publicKeys": [{}]}}'.format(", ".join(quoted_keys))
     plan.exec(
-        service_name="foundry",
+        service_name=constants.FOUNDRY_SERVICE_NAME,
         recipe=ExecRecipe(
             command=["/bin/sh", "-c", "echo '{}' > /app/operator_keys.json".format(json_content)]
         )
@@ -28,7 +24,7 @@ def register_operators(plan, public_keys, network_address):
     ]
 
     plan.exec(
-        service_name="foundry",
+        service_name=constants.FOUNDRY_SERVICE_NAME,
         recipe=ExecRecipe(
             command=["/bin/sh", "-c", " ".join(command_arr)],
         )
@@ -36,7 +32,7 @@ def register_operators(plan, public_keys, network_address):
 
     # get a file artifact to the operator data
     operator_data_artifact = plan.store_service_files(
-        service_name="foundry",
+        service_name=constants.FOUNDRY_SERVICE_NAME,
         src="/app/operator_data.json",
         name="operator_data.json"
     )
@@ -45,10 +41,11 @@ def register_operators(plan, public_keys, network_address):
 
 
 def register_validators(plan, keyshare_artifact, network_address, token_address, rpc, genesis_constants):
+    # have to add a new service since we have new files to mount and mounting files to existing services is not supported
     foundry_service = plan.add_service(
         name = "register-validator",
         config = ServiceConfig(
-            image=image,
+            image=constants.FOUNDRY_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
             env_vars = {
                 "ETH_RPC_URL": rpc,

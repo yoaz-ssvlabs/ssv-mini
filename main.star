@@ -53,7 +53,8 @@ def run(plan, args):
         keystore_files, 
         operator_data_artifact,
         constants.SSV_NETWORK_PROXY_CONTRACT, 
-        constants.OWNER_ADDRESS
+        constants.OWNER_ADDRESS,
+        el_rpc
     )
 
     # Register validators on the network

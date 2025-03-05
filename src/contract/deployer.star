@@ -1,13 +1,5 @@
-FOUNDRY_SERVICE_NAME = "foundry"
+constants = import_module("../utils/constants.star")
 
-image = ImageBuildSpec(
-    image_name="localssv/ssv-network",
-    build_context_dir="./",
-    build_file="Dockerfile.contract",
-    build_args = {
-        "REPO_VERSION": "{{kurtosis.run_uuid}}",
-    },
-)
 
 # deploy all of the contracts
 def deploy(plan, el, genesis_constants):
@@ -15,9 +7,9 @@ def deploy(plan, el, genesis_constants):
 
     # start the foundry service
     foundry_service = plan.add_service(
-        name = FOUNDRY_SERVICE_NAME,
+        name = constants.FOUNDRY_SERVICE_NAME,
         config = ServiceConfig(
-            image=image,
+            image=constants.FOUNDRY_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
             env_vars = env_vars,
             files = {
@@ -29,7 +21,7 @@ def deploy(plan, el, genesis_constants):
     # Deploy the contracts to the chain
     command_arr = ["forge", "script", "script/DeployAll.s.sol:DeployAll", "--broadcast", "--rpc-url", "${ETH_RPC_URL}", "--private-key", "${PRIVATE_KEY}", "--legacy", "--silent"]
     out = plan.exec(
-        service_name = FOUNDRY_SERVICE_NAME,
+        service_name = constants.FOUNDRY_SERVICE_NAME,
         recipe = ExecRecipe(
             command = ["/bin/sh", "-c", " ".join(command_arr)]
         )

@@ -24,4 +24,4 @@ done
   --output-path "out.json" \
   --operators "$OPERATOR_IDS" \
   --nonce "$NONCE" \
-  --public-keys "$PUBLIC_KEYS"
+  --public-keys "$PUBLIC_KEYS" > /dev/null

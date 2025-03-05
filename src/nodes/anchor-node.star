@@ -1,5 +1,6 @@
 constants = import_module("../utils/constants.star")
 
+# Start an anchor node
 def start(plan, index, cl_url, el_rpc, el_ws, key_pem):
     command_arr = [
         "./anchor", "node", "--testnet-dir testnet", "--beacon-nodes", cl_url, 
@@ -10,7 +11,7 @@ def start(plan, index, cl_url, el_rpc, el_ws, key_pem):
         name="anchor-{}".format(index),
         config=ServiceConfig(
             image = constants.ANCHOR_IMAGE,
-            cmd=["/bin/sh", "-c", " ".join(command_arr)]
+            cmd=["/bin/sh", "-c", " ".join(command_arr)],
             files={
                 "/usr/local/bin/data": key_pem
             },

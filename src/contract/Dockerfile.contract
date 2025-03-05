@@ -3,12 +3,6 @@ FROM ghcr.io/foundry-rs/foundry:latest
 USER root
 WORKDIR /app
 
-# Add a build argument with a default value
-ARG REPO_VERSION=1
-
-# Use the argument to invalidate cache
-RUN echo "Version: ${REPO_VERSION}"
-
 # Install Git and other dependencies
 RUN apt-get update && apt-get install -y git curl bash jq
 
@@ -18,8 +12,6 @@ RUN cd . && git fetch --all && git reset --hard origin/foundry
 
 # Install dependencies via Foundry
 RUN forge install
-
-RUN echo "done"
 
 # Default command - keep container alive
 CMD ["tail", "-f", "/dev/null"]

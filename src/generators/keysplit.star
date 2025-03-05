@@ -1,10 +1,8 @@
 constants = import_module("../utils/constants.star")
 
-ANCHOR_KEYSPLIT = "anchor-keysplit"
-
-def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address):
+def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address, rpc):
     plan.add_service(
-        name=ANCHOR_KEYSPLIT,
+        name=constants.ANCHOR_KEYSPLIT_SERVICE,
         config=ServiceConfig(
             image=constants.ANCHOR_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
@@ -14,20 +12,21 @@ def split_keys(plan, keystores, operator_data_artifact, network_address, owner_a
                 "/usr/local/bin/keysplit": plan.upload_files("../scripts/keysplit.sh")
             },
             env_vars = {
-                "OWNER_ADDRESS": constants.OWNER_ADDRESS
+                "OWNER_ADDRESS": constants.OWNER_ADDRESS,
+                "ETH_RPC_URL": rpc
             }
         )
     )
 
     plan.exec(
-        service_name=ANCHOR_KEYSPLIT,
+        service_name=constants.ANCHOR_KEYSPLIT_SERVICE,
         recipe=ExecRecipe(
             command=["/bin/sh", "-c", "chmod u+x keysplit/keysplit.sh && cd keysplit && ./keysplit.sh"]
         )
     )
 
     keyshare_artifact = plan.store_service_files(
-        service_name = ANCHOR_KEYSPLIT,
+        service_name = constants.ANCHOR_KEYSPLIT_SERVICE,
         src="/usr/local/bin/keysplit/out.json",
         name="keyshares.json"
     )

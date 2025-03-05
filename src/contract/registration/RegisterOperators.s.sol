@@ -45,7 +45,6 @@ contract RegisterOperators is Script {
   function getOperatorPublicKeys() internal view returns (string[] memory) {
     string memory publicKeysFile = "operator_keys.json";
 
-
     // Read from JSON file
     string memory json = vm.readFile(publicKeysFile);
     string[] memory keys = stdJson.readStringArray(json, "$.publicKeys");
