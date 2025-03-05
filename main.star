@@ -39,18 +39,14 @@ def run(plan, args):
     # Once we have all of the keys, register each operator with the network
     operator_data_artifact = interactions.register_operators(plan, public_keys, constants.SSV_NETWORK_PROXY_CONTRACT)
 
-
-
     # Start up the anchor nodes
     for index in range(0, constants.ANCHOR_NODE_COUNT):
         anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index])
 
-    '''
     # Start up the ssv nodes
     for index in range(0, constants.SSV_NODE_COUNT):
         config = ssv_node.generate_config(plan, index, cl_url, el_ws, private_keys[index])
         node_service = ssv_node.start(plan, index, config)
-    '''
 
 
     # Split the ssv validator keys into into keyshares
