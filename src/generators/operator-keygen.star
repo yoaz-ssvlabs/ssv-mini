@@ -1,11 +1,10 @@
-ANCHOR_IMAGE = "zholme/anchor-unstable:1.7"
-ANCHOR_CLI_SERVICE_NAME = "anchor"
+constants = import_module("../utils/constants.star")
 
 def start_cli(plan, keystores):
     plan.add_service(
-        name=ANCHOR_CLI_SERVICE_NAME,
+        name=constants.ANCHOR_CLI_SERVICE_NAME,
         config=ServiceConfig(
-            image=ANCHOR_IMAGE,
+            image=constants.ANCHOR_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
             files={
                 "/keystores": keystores.files_artifact_uuid,
@@ -20,7 +19,7 @@ def generate_keys(plan, num_keys):
     pem_artifacts = []
 
     for index in range(0, num_keys):
-        keys = generate_operator_keys(plan)
+        keys = generate_operator_keys(plan, index)
         operator_public_keys.append(keys.public_key)
         operator_private_keys.append(keys.private_key)
         pem_artifacts.append(keys.artifact)
@@ -29,12 +28,12 @@ def generate_keys(plan, num_keys):
 
 
 # Generate a new keypair 
-def generate_operator_keys(plan):
+def generate_operator_keys(plan, index):
     # Execute the anchor keygen command
     result = plan.exec(
-        service_name=ANCHOR_CLI_SERVICE_NAME,
+        service_name=constants.ANCHOR_CLI_SERVICE_NAME,
         recipe=ExecRecipe(
-            command=["/bin/sh", "-c", "/usr/local/bin/app keygen --output-path keys.json && cat keys.json"],
+            command=["/bin/sh", "-c", "./anchor keygen > /dev/null && cat keys.json"],
             extract = {
                 "public": "fromjson | .public",
                 "private": "fromjson | .private",
@@ -43,9 +42,9 @@ def generate_operator_keys(plan):
     )
 
     pem_artifact = plan.store_service_files(
-        service_name=ANCHOR_CLI_SERVICE_NAME,
+        service_name=constants.ANCHOR_CLI_SERVICE_NAME,
         src="/usr/local/bin/key.pem",
-        name="key"
+        name="key-{}".format(index),
     )
 
     return struct(

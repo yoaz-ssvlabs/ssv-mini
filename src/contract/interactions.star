@@ -24,7 +24,7 @@ def register_operators(plan, public_keys, network_address):
         "--sig", "\'run(address)\'", network_address,
         "--rpc-url", "${ETH_RPC_URL}",
         "--private-key", "${PRIVATE_KEY}",
-        "--broadcast", "--legacy" 
+        "--broadcast", "--legacy", "--silent"
     ]
 
     plan.exec(
@@ -45,9 +45,6 @@ def register_operators(plan, public_keys, network_address):
 
 
 def register_validators(plan, keyshare_artifact, network_address, token_address, rpc, genesis_constants):
-
-
-    # start the foundry service
     foundry_service = plan.add_service(
         name = "register-validator",
         config = ServiceConfig(

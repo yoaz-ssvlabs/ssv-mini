@@ -8,7 +8,6 @@ participants:
 
 additional_services:
   - prometheus_grafana
-  - blockscout
 
 # Parameters if MEV is used
 mev_params:

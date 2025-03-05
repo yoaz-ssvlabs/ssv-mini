@@ -1,13 +1,12 @@
 constants = import_module("../utils/constants.star")
 
 ANCHOR_KEYSPLIT = "anchor-keysplit"
-ANCHOR_IMAGE = "zholme/anchor-unstable:1.7"
 
 def split_keys(plan, keystores, operator_data_artifact, network_address, owner_address):
     plan.add_service(
         name=ANCHOR_KEYSPLIT,
         config=ServiceConfig(
-            image=ANCHOR_IMAGE,
+            image=constants.ANCHOR_IMAGE,
             entrypoint=["tail", "-f", "/dev/null"],
             files={
                 "/usr/local/bin/operator_data": operator_data_artifact,
@@ -23,7 +22,7 @@ def split_keys(plan, keystores, operator_data_artifact, network_address, owner_a
     plan.exec(
         service_name=ANCHOR_KEYSPLIT,
         recipe=ExecRecipe(
-            command=["/bin/sh", "-c", "chmod u+x /usr/local/bin/keysplit/keysplit.sh && cd /usr/local/bin/keysplit && ./keysplit.sh"]
+            command=["/bin/sh", "-c", "chmod u+x keysplit/keysplit.sh && cd keysplit && ./keysplit.sh"]
         )
     )
 

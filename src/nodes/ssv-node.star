@@ -1,8 +1,18 @@
 shared_utils = import_module("../utils/utils.star")
 constants = import_module("../utils/constants.star")
-static_files = import_module("../static_files/static_files.star")
 
 SSV_CONFIG_DIR_PATH_ON_SERVICE = "/ssv-config"
+
+STATIC_FILES_DIRPATH = "/static_files"
+
+SSV_CONFIG_DIRPATH = "/ssv-config"
+
+SSV_CONFIG_TEMPLATE_FILEPATH = (
+        STATIC_FILES_DIRPATH
+        + SSV_CONFIG_DIRPATH
+        + "/templates/ssv-config.yml.tmpl"
+)
+
 
 def generate_config(
         plan,
@@ -13,7 +23,7 @@ def generate_config(
 ):
 
     ssv_config_template = read_file(
-        static_files.SSV_CONFIG_TEMPLATE_FILEPATH
+        SSV_CONFIG_TEMPLATE_FILEPATH
     )
 
     db_path = "./data/db/{}/".format(index)

@@ -17,7 +17,7 @@ for ID in $(echo $OPERATOR_IDS | tr ',' ' '); do
   fi
 done
 
-../app keysplit manual \
+../anchor keysplit manual \
   --keystore-path "$KEYSTORE_PATH" \
   --password "$PASSWORD" \
   --owner "$OWNER_ADDRESS" \
