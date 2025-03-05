@@ -34,7 +34,6 @@ def run(plan, args):
     # Generate public/private keypair for every operator we are going to deploy
     operator_keygen.start_cli(plan, keystore_files)
     public_keys, private_keys, pem_artifacts = operator_keygen.generate_keys(plan, constants.SSV_NODE_COUNT + constants.ANCHOR_NODE_COUNT);
-    plan.print(pem_artifacts)
 
     # Once we have all of the keys, register each operator with the network
     operator_data_artifact = interactions.register_operators(plan, public_keys, constants.SSV_NETWORK_PROXY_CONTRACT)
@@ -47,7 +46,6 @@ def run(plan, args):
     for index in range(0, constants.SSV_NODE_COUNT):
         config = ssv_node.generate_config(plan, index, cl_url, el_ws, private_keys[index])
         node_service = ssv_node.start(plan, index, config)
-
 
     # Split the ssv validator keys into into keyshares
     keyshare_artifact = keysplit.split_keys(
@@ -67,4 +65,5 @@ def run(plan, args):
         el_rpc,
         genesis_constants
     )
-    # The network should be functional here!
+
+    # The network should be functional!
