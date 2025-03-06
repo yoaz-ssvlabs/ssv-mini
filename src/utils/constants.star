@@ -19,7 +19,10 @@ ANCHOR_CLI_SERVICE_NAME = "anchor"
 ANCHOR_IMAGE = ImageBuildSpec(
     image_name="localssv/anchor-unstable",
     build_context_dir="../images",
-    build_file="Anchor.docker"
+    build_file="Anchor.docker",
+    build_args = {
+        "REPO_VERSION": "{{kurtosis.run_uuid}}",
+    },
 )
 
 FOUNDRY_SERVICE_NAME = "foundry"
