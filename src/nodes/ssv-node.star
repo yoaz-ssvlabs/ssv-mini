@@ -34,7 +34,7 @@ def generate_config(
     genesis_domain_type = "0x00000501"
     alan_domain_type = "0x00000502"
     registry_sync_offset = "1"
-    registry_contract_addr = constants.SSV_NETWORK_CONTRACT 
+    registry_contract_addr = constants.SSV_NETWORK_PROXY_CONTRACT
     local_events_path = "./config/events.yaml"
 
     # Prepare data for the template
