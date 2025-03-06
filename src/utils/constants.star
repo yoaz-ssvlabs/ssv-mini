@@ -16,7 +16,11 @@ VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
 
 ANCHOR_KEYSPLIT_SERVICE = "anchor-keysplit"
 ANCHOR_CLI_SERVICE_NAME = "anchor"
-ANCHOR_IMAGE = "zholme/anchor-unstable:1.11"
+ANCHOR_IMAGE = ImageBuildSpec(
+    image_name="localssv/anchor-unstable",
+    build_context_dir="./",
+    build_file="../images/Anchor.docker"
+)
 
 FOUNDRY_SERVICE_NAME = "foundry"
 FOUNDRY_IMAGE = ImageBuildSpec(
@@ -24,4 +28,8 @@ FOUNDRY_IMAGE = ImageBuildSpec(
     build_context_dir="./",
     build_file="Dockerfile.contract",
 )
+
+
+
+
 

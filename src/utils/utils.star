@@ -22,3 +22,17 @@ def get_eth_urls(all_participants):
 
 def new_template_and_data(template, template_data_json):
     return struct(template=template, data=template_data_json)
+
+
+def anchor_testnet_artifact(plan):
+    config = Directory(
+        artifact_names = [
+            plan.upload_files("../testnet-configs/anchor-config/config.yaml"),
+            plan.upload_files("../testnet-configs/anchor-config/deposit_contract_block.txt"),
+            plan.upload_files("../testnet-configs/anchor-config/ssv_boot_enr.yaml"),
+            plan.upload_files("../testnet-configs/anchor-config/ssv_contract_address.txt"),
+            plan.upload_files("../testnet-configs/anchor-config/ssv_contract_block.txt"),
+            plan.upload_files("../testnet-configs/anchor-config/ssv_domain_type.txt"),
+        ]
+    )
+    return config

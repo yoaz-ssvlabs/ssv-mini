@@ -39,8 +39,9 @@ def run(plan, args):
     operator_data_artifact = interactions.register_operators(plan, public_keys, constants.SSV_NETWORK_PROXY_CONTRACT)
 
     # Start up the anchor nodes
+    config = utils.anchor_testnet_artifact(plan)
     for index in range(0, constants.ANCHOR_NODE_COUNT):
-        anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index])
+        anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index], config)
 
     # Start up the ssv nodes
     for index in range(0, constants.SSV_NODE_COUNT):
