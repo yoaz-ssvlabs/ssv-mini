@@ -26,6 +26,7 @@ contract RegisterOperators is Script {
     ssvNetwork.updateMaximumOperatorFee(MAX_OPERATOR_FEE);
 
     for (uint256 i = 0; i < publicKeys.length; i++) {
+      bytes memory encodedPublicKey = abi.encode(publicKeys[i]);
       uint64 id = ssvNetwork.registerOperator(
         bytes(publicKeys[i]),
         OPERATOR_FEE,
