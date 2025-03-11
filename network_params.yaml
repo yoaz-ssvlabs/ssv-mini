@@ -3,10 +3,11 @@ participants:
     el_image: ethereum/client-go:latest
     cl_type: lighthouse
     cl_image: sigp/lighthouse:latest-unstable
-    validator_count: 64
-    count: 4
+    validator_count: 32
+    count: 2
 
 additional_services:
+  - dora # Helps to see validators are working
   - prometheus_grafana
 
 # Parameters if MEV is used
@@ -33,5 +34,5 @@ network_params:
   network_id: "3151908"
   deneb_fork_epoch: 0
   electra_fork_epoch: 999999
-  preregistered_validator_count: 64
+  preregistered_validator_count: 74
   preset: minimal
