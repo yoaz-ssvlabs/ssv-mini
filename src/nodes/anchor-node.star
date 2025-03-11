@@ -7,8 +7,9 @@ def start(plan, index, cl_url, el_rpc, el_ws, key_pem, config):
         "--execution-nodes", el_rpc, "--execution-nodes", el_ws, "--datadir data"
     ]
 
+    name = "anchor-node-{}".format(index)
     plan.add_service(
-        name="anchor-{}".format(index),
+        name = name,
         config=ServiceConfig(
             image = constants.ANCHOR_IMAGE,
             cmd=["/bin/sh", "-c", " ".join(command_arr)],
