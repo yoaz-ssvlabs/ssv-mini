@@ -60,12 +60,13 @@ def run(plan, args):
         genesis_constants
     )
 
+    # Start up the anchor nodes
+    config = utils.anchor_testnet_artifact(plan)
+    for index in range(0, constants.ANCHOR_NODE_COUNT):
+        anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index], config)
+
     # Start up the ssv nodes
     for index in range(0, constants.SSV_NODE_COUNT):
         config = ssv_node.generate_config(plan, index, cl_url, el_ws, private_keys[index])
         node_service = ssv_node.start(plan, index, config)
     
-    # Start up the anchor nodes
-        config = utils.anchor_testnet_artifact(plan)
-        for index in range(0, constants.ANCHOR_NODE_COUNT):
-            anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index], config)

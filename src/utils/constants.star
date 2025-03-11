@@ -14,15 +14,7 @@ VALIDATOR_KEYSTORE_SERVICE = "validator-key-generation-cl-validator-keystore"
 
 ANCHOR_KEYSPLIT_SERVICE = "anchor-keysplit"
 ANCHOR_CLI_SERVICE_NAME = "anchor"
-
-ANCHOR_IMAGE = ImageBuildSpec(
-    image_name="localssv/anchor-unstable",
-    build_context_dir="../images",
-    build_file="Anchor.docker",
-    build_args = {
-        "REPO_VERSION": "{{kurtosis.run_uuid}}",
-    },
-)
+ANCHOR_IMAGE = "anchor/anchor-unstable"
 
 FOUNDRY_SERVICE_NAME = "foundry"
 FOUNDRY_IMAGE = ImageBuildSpec(
