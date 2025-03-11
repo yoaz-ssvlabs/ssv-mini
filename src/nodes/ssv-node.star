@@ -1,4 +1,5 @@
-shared_utils = import_module("../utils/utils.star")
+utils = import_module("../utils/utils.star")
+shared_utils = import_module("github.com/ethpandaops/ethereum-package/src/shared_utils/shared_utils.star")
 constants = import_module("../utils/constants.star")
 
 SSV_CONFIG_DIR_PATH_ON_SERVICE = "/ssv-config"
@@ -13,6 +14,17 @@ SSV_CONFIG_TEMPLATE_FILEPATH = (
         + "/templates/ssv-config.yml.tmpl"
 )
 
+SSV_API_PORT = 9232
+SSV_API_PORT_ID = "http"
+
+
+USED_PORTS = {
+    SSV_API_PORT_ID: shared_utils.new_port_spec(
+        SSV_API_PORT,
+        shared_utils.TCP_PROTOCOL,
+        shared_utils.HTTP_APPLICATION_PROTOCOL,
+    )
+}
 
 def generate_config(
         plan,
@@ -34,8 +46,7 @@ def generate_config(
     genesis_domain_type = "0x00000501"
     alan_domain_type = "0x00000502"
     registry_sync_offset = "1"
-    registry_contract_addr = constants.SSV_NETWORK_PROXY_CONTRACT
-    local_events_path = "./config/events.yaml"
+    registry_contract_addr = constants.SSV_NETWORK_PROXY_CONTRACT 
 
     # Prepare data for the template
     data = struct(
@@ -49,13 +60,12 @@ def generate_config(
         RegistrySyncOffset=registry_sync_offset,
         RegistryContractAddr=registry_contract_addr,
         OperatorPrivateKey=operator_private_key,
-        LocalEventsPath=local_events_path,
     )
 
     # Render the template into a file artifact
     rendered_artifact = plan.render_templates(
         {
-            file_name: shared_utils.new_template_and_data(ssv_config_template, data),
+            file_name: utils.new_template_and_data(ssv_config_template, data),
         },
         name=file_name,
     )
