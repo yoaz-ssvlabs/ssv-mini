@@ -21,15 +21,17 @@ def run(plan, args):
     blocks.wait_until_node_reached_block(plan, "el-1-geth-lighthouse", 1)
 
     # Deploy all of the contracts onto the network
-    deployer.deploy(plan, el_rpc, genesis_constants);
+    deployer.deploy(plan, el_rpc, genesis_constants)
 
+    non_ssv_validators = args["participants"][0]["validator_count"] * args["participants"][0]["count"]
+    total_validators = args["network_params"]["preregistered_validator_count"]
     # Generate new keystore files
     keystore_files =  validator_keygen.generate_validator_keystores(
         plan, 
         eth_args.network_params.preregistered_validator_keys_mnemonic, 
-        args["network_params"]["preregistered_validator_count"], 
-        constants.VALIDATORS
-    );
+        non_ssv_validators, 
+        total_validators - non_ssv_validators
+    )
 
     # Generate public/private keypair for every operator we are going to deploy
     operator_keygen.start_cli(plan, keystore_files)
@@ -37,16 +39,6 @@ def run(plan, args):
 
     # Once we have all of the keys, register each operator with the network
     operator_data_artifact = interactions.register_operators(plan, public_keys, constants.SSV_NETWORK_PROXY_CONTRACT)
-
-    # Start up the anchor nodes
-    config = utils.anchor_testnet_artifact(plan)
-    for index in range(0, constants.ANCHOR_NODE_COUNT):
-        anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index], config)
-
-    # Start up the ssv nodes
-    for index in range(0, constants.SSV_NODE_COUNT):
-        config = ssv_node.generate_config(plan, index, cl_url, el_ws, private_keys[index])
-        node_service = ssv_node.start(plan, index, config)
 
     # Split the ssv validator keys into into keyshares
     keyshare_artifact = keysplit.split_keys(
@@ -68,4 +60,12 @@ def run(plan, args):
         genesis_constants
     )
 
-    # The network should be functional!
+    # Start up the ssv nodes
+    for index in range(0, constants.SSV_NODE_COUNT):
+        config = ssv_node.generate_config(plan, index, cl_url, el_ws, private_keys[index])
+        node_service = ssv_node.start(plan, index, config)
+    
+    # Start up the anchor nodes
+        config = utils.anchor_testnet_artifact(plan)
+        for index in range(0, constants.ANCHOR_NODE_COUNT):
+            anchor_node.start(plan, index, cl_url, el_rpc, el_ws, pem_artifacts[index], config)
