@@ -30,9 +30,6 @@ Use this if you want to shutdown previous network and start one from genesis
 ./reset.sh
 ```
 
-
-
-
 ### Goals 
 
 - Anyone can run a SSV network on their pc
