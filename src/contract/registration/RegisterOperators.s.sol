@@ -28,7 +28,7 @@ contract RegisterOperators is Script {
     for (uint256 i = 0; i < publicKeys.length; i++) {
       bytes memory encodedPublicKey = abi.encode(publicKeys[i]);
       uint64 id = ssvNetwork.registerOperator(
-        bytes(publicKeys[i]),
+        encodedPublicKey,
         OPERATOR_FEE,
         SET_AS_PRIVATE
       );
