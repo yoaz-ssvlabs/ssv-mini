@@ -12,7 +12,7 @@ contract RegisterValidator is Script {
   // Initial deposit amount (adjust as needed)
   uint256 constant DEPOSIT_AMOUNT = 1 ether;
 
-  function run(address ssvNetworkAddress, bytes memory publicKey, bytes memory sharesData, uint64[] memory operatorIds) external {
+  function run(address ssvNetworkAddress, bytes[] memory publicKeys, bytes[] memory sharesDatas, uint64[] memory operatorIds) external {
     ssvNetwork = SSVNetwork(ssvNetworkAddress);
     
     vm.startBroadcast();
@@ -25,10 +25,10 @@ contract RegisterValidator is Script {
     cluster.active = true;
     cluster.balance = 0;
     
-    ssvNetwork.registerValidator(
-      publicKey,
+    ssvNetwork.bulkRegisterValidator(
+      publicKeys,
       operatorIds,
-      sharesData,
+      sharesDatas,
       DEPOSIT_AMOUNT,
       cluster
     );
