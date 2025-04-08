@@ -22,8 +22,3 @@ FOUNDRY_IMAGE = ImageBuildSpec(
     build_context_dir="./",
     build_file="Dockerfile.contract",
 )
-
-
-
-
-
