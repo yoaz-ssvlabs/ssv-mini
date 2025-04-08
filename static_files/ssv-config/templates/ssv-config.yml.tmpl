@@ -7,7 +7,9 @@ eth2:
 eth1:
   ETH1Addr: "{{ .ETH1Addr }}"
 p2p:
-  Discovery: "mdns"
+  Discovery: "{{ .Discovery }}"
+  Bootnodes: "{{ .ENR }}"
+
 ssv:
   CustomNetwork:
     Name: "{{ .CustomNetworkName }}"

@@ -32,6 +32,7 @@ def generate_config(
         consensus_client,
         execution_client,
         operator_private_key,
+        enr
 ):
 
     ssv_config_template = read_file(
@@ -48,6 +49,12 @@ def generate_config(
     registry_sync_offset = "1"
     registry_contract_addr = constants.SSV_NETWORK_PROXY_CONTRACT 
 
+    discovery = ""
+    if enr == "":
+        discovery = "mdns"
+    else:
+        discovery = "discv5"
+
     # Prepare data for the template
     data = struct(
         LogLevel=log_level,
@@ -60,6 +67,8 @@ def generate_config(
         RegistrySyncOffset=registry_sync_offset,
         RegistryContractAddr=registry_contract_addr,
         OperatorPrivateKey=operator_private_key,
+        Discovery=discovery,
+        ENR=enr
     )
 
     # Render the template into a file artifact
