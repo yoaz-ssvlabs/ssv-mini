@@ -63,9 +63,10 @@ def run(plan, args):
 
     node_index = 0
 
-    # start up all of the anchor nodes
-    config = utils.anchor_testnet_artifact(plan)
-    anchor_node.start(plan, constants.ANCHOR_NODE_COUNT, cl_url, el_rpc, el_ws, pem_artifacts, config)
+    if constants.ANCHOR_NODE_COUNT > 0:
+        # start up all of the anchor nodes
+        config = utils.anchor_testnet_artifact(plan)
+        anchor_node.start(plan, constants.ANCHOR_NODE_COUNT, cl_url, el_rpc, el_ws, pem_artifacts, config)
 
     node_index += constants.ANCHOR_NODE_COUNT
 
@@ -74,5 +75,3 @@ def run(plan, args):
         config = ssv_node.generate_config(plan, node_index, cl_url, el_ws, private_keys[node_index])
         node_service = ssv_node.start(plan, node_index, config)
         node_index += 1
-
-    
