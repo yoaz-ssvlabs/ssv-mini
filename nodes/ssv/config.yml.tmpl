@@ -11,11 +11,12 @@ p2p:
   Bootnodes: "{{ .ENR }}"
 
 ssv:
+  Network: "{{ .Network }}"
   CustomNetwork:
-    Name: "{{ .CustomNetworkName }}"
-    GenesisDomainType: "{{ .GenesisDomainType }}"
-    AlanDomainType: "{{ .AlanDomainType }}"
+    DomainType: "{{ .DomainType }}"
     RegistrySyncOffset: "{{ .RegistrySyncOffset }}"
     RegistryContractAddr: "{{ .RegistryContractAddr }}"
-OperatorPrivateKey: {{ .OperatorPrivateKey }}
-SSVAPIPort: 9232
+    DiscoveryProtocolID: "{{ .DiscoveryProtocolID }}"
+OperatorPrivateKey: "{{ .OperatorPrivateKey }}"
+SSVAPIPort: {{ .SSVAPIPort }}
+Exporter: "{{ .Exporter }}"
