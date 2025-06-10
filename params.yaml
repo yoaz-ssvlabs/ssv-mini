@@ -11,6 +11,7 @@ network:
   additional_services:
     - dora # Helps to see validators are working
     - prometheus_grafana
+    - blockscout
 
   mev_params:
     mev_relay_image: flashbots/mev-boost-relay
@@ -38,9 +39,9 @@ network:
     electra_fork_epoch: 0
     fulu_fork_epoch: 100000000
     
-    # 74 = 32 validators * 2(number of el/cl nodes) + 10 (running on SSV/Anchor nodes)
+    # 74 = 32 validators * 2(number of el/cl nodes) + 10 (running on SSV/Anchor nodes) + 20 unregsitered validators
     # aligns with validator_count configuration under participants section
-    preregistered_validator_count: 74
+    preregistered_validator_count: 104
     seconds_per_slot: 12
     max_per_epoch_activation_churn_limit: 8
     # NOTE: changes the number of slots in the epoch and potentially some other network settings.
@@ -48,7 +49,7 @@ network:
     # preset: minimal
 
 monitor:
-  enabled: false
+  enabled: true
 
 nodes:
   ssv:
@@ -56,3 +57,5 @@ nodes:
   anchor:
     count: 0
   
+extra_params: 
+  unregistered_validator_count: 20
