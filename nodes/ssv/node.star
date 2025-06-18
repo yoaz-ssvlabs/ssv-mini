@@ -5,6 +5,9 @@ constants = import_module("../../utils/constants.star")
 SSV_API_PORT = 9232
 SSV_API_PORT_NAME = "api"
 
+SSV_METRICS_PORT_NAME = "metrics"
+SSV_METRICS_PORT = 9240
+
 def generate_config(
         plan,
         index,
@@ -23,6 +26,7 @@ def generate_config(
     # Prepare data for the template
     data = struct(
         LogLevel="debug",
+        LogFormat="json",
         DBPath="./data/db/{}/".format(index),
         BeaconNodeAddr=consensus_client,
         ETH1Addr=execution_client,
@@ -35,7 +39,9 @@ def generate_config(
         Discovery=discovery,
         ENR=enr,
         Exporter=is_exporter,
-        SSVAPIPort=SSV_API_PORT
+        SSVAPIPort=SSV_API_PORT,
+        MetricsAPIPort=SSV_METRICS_PORT,
+        EnableTraces=True
     )
 
     plan.print(
@@ -73,16 +79,24 @@ def start(plan, index, config_artifact, is_exporter):
                 number=SSV_API_PORT,
                 transport_protocol="TCP",
                 application_protocol="http",
+            ),
+            SSV_METRICS_PORT_NAME: PortSpec(
+                number=SSV_METRICS_PORT,
+                transport_protocol="TCP",
+                application_protocol="http",
             )
         },
         cmd=[],
         env_vars={
-            "CONFIG_PATH": config_path,  # Pass the path as an environment variable
+            "CONFIG_PATH": config_path,
+            # When traces are enabled, these two OTEL configurations are required
+            "OTEL_EXPORTER_OTLP_TRACES_PROTOCOL": "grpc", 
+            "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://alloy:4317"
         },
         files={
             SSV_CONFIG_DIR_PATH_ON_SERVICE: config_artifact,  # Map the configuration artifact to the desired path
         },
-    )
+)
 
     # Add the service
     return plan.add_service(service_name, service_config)
