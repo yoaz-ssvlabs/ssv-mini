@@ -18,9 +18,9 @@ network:
     electra_fork_epoch: 0
     fulu_fork_epoch: 100000000
     
-    # 74 = 32 validators * 2(number of el/cl nodes) + 10 (running on SSV/Anchor nodes)
+    # 74 = 32 validators * 2(number of el/cl nodes) + 10 (running on SSV/Anchor nodes) + 10 (unregistered validators)
     # aligns with validator_count configuration under participants section
-    preregistered_validator_count: 74
+    preregistered_validator_count: 84
     # NOTE: changes the number of slots in the epoch and potentially some other network settings.
     # docs: https://github.com/ethpandaops/ethereum-package/blob/main/README.md#configuration
     # preset: minimal
@@ -33,4 +33,7 @@ nodes:
     count: 4
   anchor:
     count: 0
+  
+extra_params: 
+  unregistered_validator_count: 10
   
